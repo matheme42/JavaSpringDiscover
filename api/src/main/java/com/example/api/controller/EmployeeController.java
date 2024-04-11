@@ -90,6 +90,7 @@ public class EmployeeController {
         String password = updatedEmployee.getPassword();
         if (password != null) employee.setPassword(password);
 
+        employeeService.saveEmployee(employee);
         // return the updatedEmployee;
         return employee;
     }

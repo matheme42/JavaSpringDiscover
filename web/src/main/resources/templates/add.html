@@ -4,4 +4,7 @@
     <input type="text" th:field="*{mail}">
     <input type="password" th:field="*{password}">
     <button type="submit" c>Créer</button>
+    <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+        <p th:each="err : ${#fields.errors('*')}" th:text="${err}"></p>    
+    </div>
 </form>

@@ -5,4 +5,7 @@
     <input type="password" th:field="*{password}">
     <input type="hidden" th:field="*{id}">
     <button type="submit" c>Update</button>
+    <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+        <p th:each="err : ${#fields.errors('*')}" th:text="${err}"></p>    
+    </div>
 </form>

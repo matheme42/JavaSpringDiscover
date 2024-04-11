@@ -56,3 +56,12 @@ Wrong user name or password [28000-224]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:522)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	... 50 more
+2024-04-11 20:51:58.657954+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "EMPLOYEES" not found (this database is empty); SQL statement:
+select e1_0.id,e1_0.first_name,e1_0.last_name,e1_0.mail,e1_0.password from employees e1_0 [42104-224]
+2024-04-11 20:51:58.847098+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "EMPLOYEES" not found (this database is empty); SQL statement:
+select e1_0.id,e1_0.first_name,e1_0.last_name,e1_0.mail,e1_0.password from employees e1_0 [42104-224]
+2024-04-11 20:52:01.212643+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "EMPLOYEES" not found (this database is empty); SQL statement:
+select e1_0.id,e1_0.first_name,e1_0.last_name,e1_0.mail,e1_0.password from employees e1_0 [42104-224]

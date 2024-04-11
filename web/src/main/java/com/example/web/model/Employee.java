@@ -1,5 +1,6 @@
 package com.example.web.model;
 
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data // create Setter and Getter for each declaration in the class
@@ -10,6 +11,7 @@ public class Employee {
 
     private Integer id;
 
+    @Size(min = 5, max = 250)
     private String firstName;
 
     private String lastName;

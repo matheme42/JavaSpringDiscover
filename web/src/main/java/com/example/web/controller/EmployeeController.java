@@ -3,6 +3,8 @@ package com.example.web.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +13,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.web.model.Employee;
 import com.example.web.service.EmployeeService;
+
+import jakarta.validation.Valid;
 
 /** EmployeeController is a RestController / Received incoming request:
  * @apiNote contains:
@@ -74,9 +78,13 @@ public class EmployeeController {
      * @return - Redirection
      */
     @PostMapping("/saveEmployee")
-    public ModelAndView saveEmployee(@ModelAttribute Employee employee) {
+    public ModelAndView saveEmployee(@ModelAttribute @Valid Employee employee, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("employee", employee);        
+        return new ModelAndView("/add"); // redirect to the page home
+        }
         service.saveEmployee(employee);
-        return new ModelAndView("redirect:/"); // redirect to the page /
+        return new ModelAndView("redirect:/"); // redirect to the page home
     }
 
     /**
