@@ -3,6 +3,7 @@ package com.example.web.repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -36,10 +37,13 @@ public class EmployeeProxy {
         String getEmployeesUrl = baseApiUrl + "/employees";
 
         RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(props.getTokenName(), props.getToken());
+        HttpEntity<Object> request = new HttpEntity<Object>(null, headers);
         ResponseEntity<Iterable<Employee>> response = restTemplate.exchange(
                 getEmployeesUrl,
                 HttpMethod.GET,
-                null,
+                request,
                 new ParameterizedTypeReference<Iterable<Employee>>() {}
                 );
 
@@ -59,10 +63,13 @@ public class EmployeeProxy {
 		String getEmployeeUrl = baseApiUrl + "/employee/" + id;
 
 		RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(props.getTokenName(), props.getToken());
+        HttpEntity<Object> request = new HttpEntity<Object>(null, headers);
 		ResponseEntity<Employee> response = restTemplate.exchange(
 				getEmployeeUrl, 
 				HttpMethod.GET, 
-				null,
+				request,
 				Employee.class
 			);
 		
@@ -82,7 +89,9 @@ public class EmployeeProxy {
         String createEmployeeUrl = baseApiUrl + "/employee";
     
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<Employee> request = new HttpEntity<Employee>(e);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(props.getTokenName(), props.getToken());
+        HttpEntity<Employee> request = new HttpEntity<Employee>(e, headers);
         ResponseEntity<Employee> response = restTemplate.exchange(
             createEmployeeUrl,
             HttpMethod.POST,
@@ -105,7 +114,9 @@ public class EmployeeProxy {
         String createEmployeeUrl = baseApiUrl + "/employee/" + e.getId();
     
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<Employee> request = new HttpEntity<Employee>(e);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(props.getTokenName(), props.getToken());
+        HttpEntity<Employee> request = new HttpEntity<Employee>(e, headers);
         ResponseEntity<Employee> response = restTemplate.exchange(
             createEmployeeUrl,
             HttpMethod.PUT,
@@ -130,10 +141,13 @@ public class EmployeeProxy {
 		String deleteEmployeeUrl = baseApiUrl + "/employee/" + id;
 		
 		RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(props.getTokenName(), props.getToken());
+        HttpEntity<Object> request = new HttpEntity<Object>(null, headers);
 		ResponseEntity<Void> response = restTemplate.exchange(
 				deleteEmployeeUrl, 
 				HttpMethod.DELETE, 
-				null, 
+				request, 
 				Void.class);
 		
 		log.debug("Delete Employee call " + response.getStatusCode().toString());
