@@ -26,6 +26,7 @@ services:
       - ./api:/app
     networks:
       - frontend
+      - frontendangular
       - backend
 
   web:
@@ -43,9 +44,27 @@ services:
     ports:
       - 9001:9001
 
+
+  webangular:
+    restart: on-failure:5
+    depends_on:
+      - mysql
+      - api  
+    build:
+      context: ./webangular
+      dockerfile: Dockerfile
+    volumes:
+      - /app/node_smodules
+      - ./webangular:/app
+    networks:
+      - frontendangular
+    ports:
+      - 4200:4200
+
 volumes:
   mysql-data:
 
 networks:
   backend:
   frontend:
+  frontendangular:
