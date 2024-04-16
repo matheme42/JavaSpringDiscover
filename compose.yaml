@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  mysql:
+    build:
+      context: ./database
+      args:
+        - MYSQL_DATABASE=db_example
+        - MYSQL_USER=springuser
+        - MYSQL_PASSWORD=ThePassword
+        - MYSQL_ROOT_PASSWORD=my_secret_pw
+      dockerfile: Dockerfile
+    restart: on-failure:5
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend
+
+  api:
+    restart: on-failure:5
+    depends_on:
+      - mysql
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - ./api:/app
+    networks:
+      - frontend
+      - backend
+
+  web:
+    restart: on-failure:5
+    depends_on:
+      - mysql
+      - api  
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - ./web:/app
+    networks:
+      - frontend
+    ports:
+      - 9001:9001
+
+volumes:
+  mysql-data:
+
+networks:
+  backend:
+  frontend:
