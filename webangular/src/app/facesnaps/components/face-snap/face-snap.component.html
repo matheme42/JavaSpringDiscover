@@ -1,0 +1,5 @@
+<div class="face-snap-card"  [ngClass]="{snapped: textButton === 'unSnap' }">
+    <h2>{{ faceSnap.title | titlecase }}</h2>
+    <p>Mis en ligne le {{ faceSnap.createdDate | date: 'à HH:mm, le d MMMM yyyy' }}</p>
+    <button (click)="onViewFaceSnap()">{{textButton}}</button>
+</div>

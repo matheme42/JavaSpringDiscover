@@ -28,6 +28,8 @@ services:
       - frontend
       - frontendangular
       - backend
+    ports:
+      - 9000:9000
 
   web:
     restart: on-failure:5
@@ -54,7 +56,7 @@ services:
       context: ./webangular
       dockerfile: Dockerfile
     volumes:
-      - /app/node_smodules
+      - /app/node_modules
       - ./webangular:/app
     networks:
       - frontendangular
