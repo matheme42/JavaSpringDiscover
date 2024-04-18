@@ -15,4 +15,14 @@ export class AuthService {
     getTokenName() : string {
         return this.tokenName;
     }
+
+    private userToken! : string;
+
+    login() {
+        this.userToken = "MyFakeToken";
+    }
+
+    getUserToken() : string {
+        return this.userToken;
+    }
 }
