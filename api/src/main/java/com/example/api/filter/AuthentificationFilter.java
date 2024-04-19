@@ -1,11 +1,11 @@
-package com.example.api.filter.security;
+package com.example.api.filter;
 
 import java.io.IOException;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
-
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,18 +17,14 @@ import jakarta.servlet.http.HttpServletRequest;
  * - check if the token is present and valid
  * - Authorize or not the request
  */
+@Component
 public class AuthentificationFilter extends GenericFilterBean {
 
     // the token value
-    private String token;
+    private String token = "Baeldung";
 
     // the token name
-    private String name;
-
-    AuthentificationFilter(String token, String name) {
-        this.token = token;
-        this.name = name;
-    }
+    private String name = "X-API-KEY";
     
     /**
      * doFilter is call for each incoming request
@@ -40,10 +36,12 @@ public class AuthentificationFilter extends GenericFilterBean {
 
         // create the authentification token
         Authentication authentication = new AuthentificationApiKey(apiKey, !(apiKey == null || !apiKey.equals(token)));
-        
-        // change the default user password authentification with a token authentification
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            // change the default user password authentification with a token authentification
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+            SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
+        }
         // create the new filter
         chain.doFilter(request, response);
     }

@@ -1,4 +1,4 @@
-package com.example.api.model;
+package com.example.api.model.db;
 
 import java.util.Date;
 
