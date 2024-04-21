@@ -1,7 +1,10 @@
 package com.example.api.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.FileSystemResource;
 
 import lombok.Data;
 
@@ -21,4 +24,11 @@ public class SecretConfig {
 
     private String MAIL_USERNAME;
     private String MAIL_PASSWORD;
+
+    @Bean
+    static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        configurer.setLocation(new FileSystemResource(".env"));
+        return configurer;
+    }
 }

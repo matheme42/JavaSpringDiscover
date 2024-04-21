@@ -1,4 +1,4 @@
-package com.example.api.config;
+package com.example.api.config.CustomHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

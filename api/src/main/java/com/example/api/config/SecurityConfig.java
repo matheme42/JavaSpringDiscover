@@ -21,6 +21,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.api.config.CustomHandler.CustomAccessDeniedHandler;
+import com.example.api.config.CustomHandler.CustomLogoutHandler;
 import com.example.api.filter.AuthentificationFilter;
 import com.example.api.filter.JwtAuthentificationFilter;
 
@@ -29,7 +31,6 @@ import lombok.Data;
 @Data
 @Configuration
 @EnableWebSecurity
-@ConfigurationProperties(prefix = "com.example.api.filter.security") // add a prefix element of the declaration
 public class SecurityConfig {
 
   @Autowired

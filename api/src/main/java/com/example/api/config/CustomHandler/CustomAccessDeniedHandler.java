@@ -1,4 +1,4 @@
-package com.example.api.config;
+package com.example.api.config.CustomHandler;
 
 import java.io.IOException;
 
