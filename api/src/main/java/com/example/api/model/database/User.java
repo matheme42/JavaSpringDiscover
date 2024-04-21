@@ -1,4 +1,4 @@
-package com.example.api.model.db;
+package com.example.api.model.database;
 
 import java.util.Collection;
 import java.util.List;
@@ -80,6 +80,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return role != Role.REGISTER;
     }
 }

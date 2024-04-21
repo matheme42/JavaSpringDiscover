@@ -3,7 +3,7 @@ package com.example.api.repository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.api.model.db.Employee;
+import com.example.api.model.database.Employee;
 
 
 /** EmployeeRepository (only Repository must be connected to the database)

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.example.api.model.db.Token;
+import com.example.api.model.database.Token;
 
 @Repository
 public interface TokenRepository extends JpaRepository<Token, UUID>{

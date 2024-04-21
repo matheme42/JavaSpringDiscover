@@ -6,24 +6,28 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.api.model.db.Token;
-import com.example.api.model.db.User;
-import com.example.api.model.request.authentication.loginRequest;
+import com.example.api.DTO.AuthenticateDTO.LoginRequestDTO;
+import com.example.api.model.database.Code;
+import com.example.api.model.database.Token;
+import com.example.api.model.database.User;
+import com.example.api.model.enums.Role;
+import com.example.api.model.enums.Type;
+import com.example.api.repository.CodeRepository;
 import com.example.api.repository.TokenRepository;
 import com.example.api.repository.UserRepository;
+
+import io.jsonwebtoken.MalformedJwtException;
 
 @Service
 public class AuthenticationService {
 
     @Autowired
-    private UserRepository repository;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -34,11 +38,30 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-
     @Autowired
     private TokenRepository tokenRepository;
 
-    
+    @Autowired
+    private CodeRepository codeRepository;
+
+    private void saveUserCode(String jwt, User user, Type type) {
+        Code code = new Code();
+        code.setToken(jwt);
+        code.setValid(true);
+        code.setUser(user);
+        code.setType(type);
+        codeRepository.save(code);
+    }
+
+    private void revokeAllCodeByUserAndType(User user, Type type) {
+        List<Code> validCodeListByUser = codeRepository.findAllCodeByUserAndType(user.getId(), Type.VALIDATE_ACCOUNT);
+        if (validCodeListByUser.isEmpty()) return ;
+
+        validCodeListByUser.forEach(t -> {t.setValid(false);});
+        codeRepository.saveAll(validCodeListByUser);
+    }
+
+
     private void saveUserToken(String jwt, User user) {
         Token token = new Token();
         token.setToken(jwt);
@@ -55,48 +78,114 @@ public class AuthenticationService {
         tokenRepository.saveAll(validTokenListByUser);
     }
 
-    public ResponseEntity<HashMap<String, Object>> register(User request) {
-
-        Optional<User> searchUser = repository.findByUsername(request.getUsername());
-        if (searchUser.isPresent()) return new ResponseEntity<>(new HashMap<>() {{
-            put("message" , "rejected");
-            put("error" , "user already exist");
-        }}, HttpStatus.BAD_REQUEST);
-
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setImage(request.getImage());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
-        user = repository.save(user);
-
+    private String generateAuthToken(User user) {
         String jwt = jwtService.generateAuthToken(user);
+        revokeAllTokenByUser(user);
 
         // save the generated token
         saveUserToken(jwt, user);
-
-
-        return ResponseEntity.ok(new HashMap<>() {{put("token" , jwt);}});
+        return jwt;
     }
 
-    public ResponseEntity<HashMap<String, Object>> authenticate(loginRequest request) {
+    public HashMap<String, Object> register(User user) {
+
+        Optional<User> searchUser = userRepository.findByUsername(user.getUsername());
+        if (searchUser.isPresent()) return new HashMap<>() {{
+            put("error" , "username already used");
+        }};
+        searchUser = userRepository.findByEmail(user.getEmail());
+        if (searchUser.isPresent()) return new HashMap<>() {{
+            put("error" , "email address already used");
+        }};
+
+        user.setUsername(user.getUsername());
+        user.setEmail(user.getEmail());
+        user.setImage(user.getImage());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(user.getRole());
+        user = userRepository.save(user);
+
+        if (user.getRole() == Role.REGISTER) return new HashMap<>() {{put("token" , "");}};
+
+        String jwt = generateAuthToken(user);
+        return new HashMap<>() {{put("token" , jwt);}};
+    }
+
+    public HashMap<String, Object> authenticate(LoginRequestDTO request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         
-        Optional<User> searchUser = repository.findByUsername(request.getUsername());
-        if (!searchUser.isPresent()) return new ResponseEntity<>(new HashMap<>() {{
-            put("message" , "rejected");
+        Optional<User> searchUser = userRepository.findByUsername(request.getUsername());
+        if (!searchUser.isPresent()) return new HashMap<>() {{
             put("error" , "user not found");
-        }}, HttpStatus.BAD_REQUEST);
-
+        }};
 
         User user = searchUser.get();
-        String jwt = jwtService.generateAuthToken(user);
-        
-        revokeAllTokenByUser(user);
-        saveUserToken(jwt, user);
+        String jwt = generateAuthToken(user);
+        return new HashMap<>() {{put("token" , jwt);}};
+    }
 
-        return ResponseEntity.ok(new HashMap<>() {{put("token" , jwt);}});
+    
+    public HashMap<String, Object> createValidateAccoutCodeByUser(User user, Type type) {
+
+        if (user.getRole() != Role.REGISTER) return new HashMap<>() {{put("error" , "user already validate");}};
+        revokeAllCodeByUserAndType(user, type);
+        String jwtCode = jwtService.generateCodeToken(user);
+        saveUserCode(jwtCode, user, type);
+        return new HashMap<>() {{put("token" , jwtCode);}};
+    }
+
+    private HashMap<String, Object> extractCodeAndUserFromToken(String token) {
+        String username;
+        try {
+            username = jwtService.extractUsername(token);
+        } catch (MalformedJwtException exception) {
+            return new HashMap<>() {{put("error" , "malformated token");}};
+        }
+        
+        Optional<Code> searchCode = codeRepository.findByToken(token);
+        if (!searchCode.isPresent()) {
+            return new HashMap<>() {{put("error" , "token not found");}};
+        }
+
+        final Code code = searchCode.get();
+        final User user = code.getUser();
+
+        if (username.equals(user.getUsername()) == false || code.isValid() == false) {
+            return new HashMap<>() {{put("error" , "invalid token");}}; 
+        }
+
+        return new HashMap<>() {{put("code" , code); put("user" , user);}}; 
+    }
+
+
+    public HashMap<String, Object> readValidateAccoutCode(String token) {
+
+        HashMap<String, Object> extractResult = extractCodeAndUserFromToken(token);
+        if (extractResult.containsKey("error")) return extractResult;
+        Code code = (Code) extractResult.get("code");
+        User user = (User) extractResult.get("user");
+        
+        user.setRole(Role.USER);
+        user = userRepository.save(user);
+        code.setValid(false);
+        codeRepository.save(code);
+        String jwt = generateAuthToken(user);
+        return new HashMap<>() {{put("token" , jwt);}};
+    }
+
+
+    public HashMap<String, Object> readForgetPasswordCode(String token, String password) {
+        HashMap<String, Object> extractResult = extractCodeAndUserFromToken(token);
+        if (extractResult.containsKey("error")) return extractResult;
+        Code code = (Code) extractResult.get("code");
+        User user = (User) extractResult.get("user");
+        
+        user.setPassword(passwordEncoder.encode(password));
+        user = userRepository.save(user);
+        code.setValid(false);
+        codeRepository.save(code);
+        revokeAllTokenByUser(user);
+        String jwt = generateAuthToken(user);
+        return new HashMap<>() {{put("token" , jwt);}};
     }
 }

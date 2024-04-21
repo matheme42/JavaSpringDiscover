@@ -1,4 +1,4 @@
-package com.example.api.model.db;
+package com.example.api.model.database;
 
 import java.util.UUID;
 
@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import com.example.api.model.enums.Type;
 
@@ -30,15 +31,15 @@ public class Code {
     private String token;
 
     @Column(name = "is_valid")
-    @NotBlank(message = "isValid is mandatory")
+    @NotNull(message = "is_valid must be set")
     private boolean isValid;
 
     @Enumerated(value = EnumType.STRING)
-    @NotBlank(message = "type is mandatory")
+    @NotNull(message = "type must be provide")
     Type type;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "user_id")
-    @NotBlank(message = "user_id is mandatory")
+    @NotNull(message = "user must be provide")
     private User user;
 }

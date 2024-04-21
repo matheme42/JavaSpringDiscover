@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.api.model.db.Snap;
+import com.example.api.model.database.Snap;
 import com.example.api.repository.SnapRepository;
 
 import lombok.Data;

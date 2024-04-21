@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.api.model.db.Snap;
+import com.example.api.model.database.Snap;
 import com.example.api.service.SnapService;
 import org.springframework.web.bind.annotation.PutMapping;
 

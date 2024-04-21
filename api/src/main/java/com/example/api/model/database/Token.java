@@ -1,4 +1,4 @@
-package com.example.api.model.db;
+package com.example.api.model.database;
 
 import java.util.UUID;
 
@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Entity
@@ -23,12 +25,15 @@ public class Token {
     private UUID id;
 
     @Column(name = "token")
+    @NotBlank(message = "token is mandatory")
     private String token;
 
     @Column(name = "is_logged_out")
+    @NotNull(message = "is_logged_out must be set")
     private boolean loggedOut;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "user_id")
+    @NotNull(message = "user must be provide")
     private User user;
 }

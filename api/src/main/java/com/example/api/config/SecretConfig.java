@@ -18,6 +18,8 @@ public class SecretConfig {
 
     private String JWT_SECRET_KEY;
 
+    private String MAIL_BODY_HOSTNAME;
+
 
     private String MAIL_HOST;
     private int MAIL_PORT;

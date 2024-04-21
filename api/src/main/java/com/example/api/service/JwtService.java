@@ -10,10 +10,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.example.api.config.SecretConfig;
-import com.example.api.model.db.User;
+import com.example.api.model.database.User;
 import com.example.api.repository.TokenRepository;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -78,10 +79,14 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
+        try {
+            return Jwts.parser()
             .verifyWith(getSigninKey())
             .build()
             .parseSignedClaims(token)
             .getPayload();
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims();
+        }
     }
 }

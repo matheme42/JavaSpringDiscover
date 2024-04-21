@@ -2,7 +2,6 @@ package com.example.api.config;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -65,7 +64,7 @@ public class SecurityConfig {
 
       // allow to access all the page without define role
       http.authorizeHttpRequests(req -> 
-        req.requestMatchers("/login/**", "/register/**").authenticated().
+        req.requestMatchers("/login/**", "/register/**", "/validate_accout/**", "/validate/**", "/forget_password/**", "/reset_password/**").authenticated().
         requestMatchers("/error").permitAll()
         .anyRequest().hasAnyAuthority("USER", "ADMIN")
         
@@ -90,12 +89,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
       return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authentificationManager(AuthenticationConfiguration configuration) throws Exception {
+    AuthenticationManager authentificationManager(AuthenticationConfiguration configuration) throws Exception {
       return configuration.getAuthenticationManager();
     }
 }
