@@ -1,6 +1,7 @@
-version: '3.8'
 services:
   mysql:
+    container_name: mysqlserver  
+    hostname: mysql
     build:
       context: ./database
       args:
@@ -16,7 +17,9 @@ services:
       - backend
 
   api:
+    container_name: apiserver  
     restart: on-failure:2
+    hostname: api
     depends_on:
       - mysql
     build:
@@ -32,7 +35,9 @@ services:
       - 9000:9000
 
   web:
+    container_name: webserver
     restart: on-failure:2
+    hostname: web
     depends_on:
       - mysql
       - api  
@@ -48,7 +53,9 @@ services:
 
 
   webangular:
+    container_name: angularserver
     restart: on-failure:2
+    hostname: web-angular
     depends_on:
       - mysql
       - api  
@@ -62,7 +69,7 @@ services:
       - frontendangular
     ports:
       - 4200:4200
-
+      
 volumes:
   mysql-data:
 

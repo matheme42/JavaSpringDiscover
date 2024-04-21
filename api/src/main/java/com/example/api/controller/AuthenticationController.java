@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.api.model.db.User;
 import com.example.api.model.request.authentication.loginRequest;
 import com.example.api.service.AuthenticationService;
+import com.example.api.service.MailService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -36,6 +37,9 @@ public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;
 
+    @Autowired
+    MailService mailService;
+
     private ResponseEntity<HashMap<String, Object>>  handleBadRequest(BindingResult bindingResult) {
         List<String> result = new Vector<>();
         for (FieldError e : bindingResult.getFieldErrors()) {
@@ -50,6 +54,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<HashMap<String, Object>> register(@RequestBody @Valid User user, BindingResult result) {
         if (result.hasErrors()) return handleBadRequest(result);
+        mailService.sendSimpleMessage("null", "null", "");
         return authenticationService.register(user);
     }
  

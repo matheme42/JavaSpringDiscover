@@ -2,6 +2,7 @@ package com.example.api.service;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.api.model.db.Token;
 import com.example.api.model.db.User;
 import com.example.api.model.request.authentication.loginRequest;
+import com.example.api.repository.TokenRepository;
 import com.example.api.repository.UserRepository;
 
 @Service
@@ -32,6 +35,26 @@ public class AuthenticationService {
     private AuthenticationManager authenticationManager;
 
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    
+    private void saveUserToken(String jwt, User user) {
+        Token token = new Token();
+        token.setToken(jwt);
+        token.setLoggedOut(false);
+        token.setUser(user);
+        tokenRepository.save(token);
+    }
+
+    private void revokeAllTokenByUser(User user) {
+        List<Token> validTokenListByUser = tokenRepository.findAllTokenByUser(user.getId());
+        if (validTokenListByUser.isEmpty()) return ;
+
+        validTokenListByUser.forEach(t -> {t.setLoggedOut(true);});
+        tokenRepository.saveAll(validTokenListByUser);
+    }
+
     public ResponseEntity<HashMap<String, Object>> register(User request) {
 
         Optional<User> searchUser = repository.findByUsername(request.getUsername());
@@ -49,8 +72,13 @@ public class AuthenticationService {
         user.setRole(request.getRole());
         user = repository.save(user);
 
-        String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new HashMap<>() {{put("token" , token);}});
+        String jwt = jwtService.generateAuthToken(user);
+
+        // save the generated token
+        saveUserToken(jwt, user);
+
+
+        return ResponseEntity.ok(new HashMap<>() {{put("token" , jwt);}});
     }
 
     public ResponseEntity<HashMap<String, Object>> authenticate(loginRequest request) {
@@ -64,7 +92,11 @@ public class AuthenticationService {
 
 
         User user = searchUser.get();
-        String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new HashMap<>() {{put("token" , token);}});
+        String jwt = jwtService.generateAuthToken(user);
+        
+        revokeAllTokenByUser(user);
+        saveUserToken(jwt, user);
+
+        return ResponseEntity.ok(new HashMap<>() {{put("token" , jwt);}});
     }
 }

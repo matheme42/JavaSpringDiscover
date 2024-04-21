@@ -8,6 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.api.model.enums.Role;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -48,6 +51,12 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     @NotNull(message = "role is mandatory")
     Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
+
+    @OneToMany(mappedBy = "user")
+    private List<Code> codes;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

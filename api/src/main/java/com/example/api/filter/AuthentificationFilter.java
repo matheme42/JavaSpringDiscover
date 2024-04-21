@@ -2,10 +2,13 @@ package com.example.api.filter;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
+
+import com.example.api.config.SecretConfig;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,11 +23,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class AuthentificationFilter extends GenericFilterBean {
 
-    // the token value
-    private String token = "Baeldung";
 
-    // the token name
-    private String name = "X-API-KEY";
+    @Autowired
+    SecretConfig secretConfig;
     
     /**
      * doFilter is call for each incoming request
@@ -32,10 +33,10 @@ public class AuthentificationFilter extends GenericFilterBean {
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String apiKey = ((HttpServletRequest) request).getHeader(name);
+        String apiKey = ((HttpServletRequest) request).getHeader(secretConfig.getAUTHENTICATE_TOKEN_NAME());
 
         // create the authentification token
-        Authentication authentication = new AuthentificationApiKey(apiKey, !(apiKey == null || !apiKey.equals(token)));
+        Authentication authentication = new AuthentificationApiKey(apiKey, !(apiKey == null || !apiKey.equals(secretConfig.getAUTHENTICATE_TOKEN())));
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             // change the default user password authentification with a token authentification
             SecurityContextHolder.getContext().setAuthentication(authentication);

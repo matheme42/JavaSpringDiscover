@@ -5,10 +5,13 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.example.api.config.SecretConfig;
 import com.example.api.model.db.User;
+import com.example.api.repository.TokenRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,20 +20,34 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
-    private final String SECRET_KEY = "7dde8595859eab9b514a3f0ca1c5a9b0e423ff9da54a628ffccb75d31423a1d8";
+    @Autowired
+    SecretConfig secretConfig;
 
-    public String generateToken(User user) {
+    @Autowired
+    TokenRepository tokenRepository;
+
+    public String generateAuthToken(User user) {
+        return generateToken(user, 86400000); // generate token with 1 day expiration
+    }
+
+    public String generateCodeToken(User user) {
+        return generateToken(user, 600000); // generate token with 10 min expiration
+    }
+
+    private String generateToken(User user, int expirationInMilli) {
         return Jwts
         .builder()
         .subject(user.getUsername().toString())
         .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+        .expiration(new Date(System.currentTimeMillis() + expirationInMilli))
         .signWith(getSigninKey())
         .compact();
     }
 
+
+
     private SecretKey getSigninKey() {
-        byte [] keyBytes = Decoders.BASE64URL.decode(SECRET_KEY);
+        byte [] keyBytes = Decoders.BASE64URL.decode(secretConfig.getJWT_SECRET_KEY());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -39,10 +56,12 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-
     public Boolean isValid(String token, UserDetails user) {
-        String uuid = extractUsername(token);
-        return (uuid.equals(user.getUsername().toString())) && !isTokenExpired(token);
+        String username = extractUsername(token);
+
+        Boolean isTokenValid = tokenRepository.findByToken(token).map(t -> !t.isLoggedOut()).orElse(false);
+
+        return (username.equals(user.getUsername().toString())) && !isTokenExpired(token) && isTokenValid;
     }
 
     private boolean isTokenExpired(String token) {

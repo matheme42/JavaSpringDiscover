@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +43,9 @@ public class SecurityConfig {
 
   @Autowired
   CustomAccessDeniedHandler customAccessDeniedHandler;
+
+  @Autowired
+  CustomLogoutHandler customLogoutHandler;
 
     /**
      * The incoming request will pass throught this filter chain before the arriving to controllers
@@ -76,6 +80,10 @@ public class SecurityConfig {
       // add authentificationFilter before the user password login page to authenticate with a token instead of username password
       http.addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class);
       http.addFilterAfter(authFilter, JwtAuthentificationFilter.class);
+
+      http.logout(l -> l.logoutUrl("/logout")
+      .addLogoutHandler(customLogoutHandler)
+      .logoutSuccessHandler((req, res, auth) -> SecurityContextHolder.clearContext()));
       // build the filterChain
       return http.build();
     }
