@@ -69,7 +69,22 @@ services:
       - frontendangular
     ports:
       - 4200:4200
-      
+
+  # mqtt5 eclipse-mosquitto
+  mqtt5:
+    image: eclipse-mosquitto
+    container_name: mqtt5
+    networks:
+      - mosquitto
+    ports:
+      - "8083:8083" #default mqtt port for websockets
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:rw
+      - ./mosquitto/data:/mosquitto/data:rw
+      - ./mosquitto/log:/mosquitto/log:rw
+    restart: unless-stopped
+
+
 volumes:
   mysql-data:
 
@@ -77,3 +92,4 @@ networks:
   backend:
   frontend:
   frontendangular:
+  mosquitto:
