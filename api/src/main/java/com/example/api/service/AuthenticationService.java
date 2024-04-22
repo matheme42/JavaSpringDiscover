@@ -176,7 +176,7 @@ public class AuthenticationService {
      * @return a HashMap containing the validation code if creation is successful, or an error message otherwise
      */
     public HashMap<String, Object> createValidateAccoutCodeByUser(User user, Type type) {
-        if (user.getRole() != Role.REGISTER) return new HashMap<>() {{put("error", "user already validate");}};
+        if (user.getRole() != Role.REGISTER && type == Type.VALIDATE_ACCOUNT) return new HashMap<>() {{put("error", "user already validate");}};
         revokeAllCodeByUserAndType(user, type);
         String jwtCode = jwtService.generateCodeToken(user);
         saveUserCode(jwtCode, user, type);

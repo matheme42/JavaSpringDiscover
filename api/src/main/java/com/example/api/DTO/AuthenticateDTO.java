@@ -13,7 +13,7 @@ public class AuthenticateDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public class LoginRequestDTO {
+    public static class LoginRequestDTO {
     
         @NotBlank(message = "username in mandatory")
         private String username;
@@ -25,7 +25,7 @@ public class AuthenticateDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public class ResetPasswordRequestDTO {
+    public static class ResetPasswordRequestDTO {
         @NotBlank(message = "token in mandatory")
         private String token;
     
@@ -36,7 +36,7 @@ public class AuthenticateDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public class SendUserCodeDTO {
+    public static class SendUserCodeDTO {
         @NotBlank(message = "mail is mandatory")
         @Email
         private String mail;
@@ -45,7 +45,7 @@ public class AuthenticateDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public class TokenRequestDTO {
+    public static class TokenRequestDTO {
         @NotBlank(message = "token in mandatory")
         private String token;
     }
