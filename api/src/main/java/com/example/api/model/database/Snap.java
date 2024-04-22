@@ -12,13 +12,18 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Data;
 
-@Data // create the Setter and the Getter of all object declared in the class
-@Entity // defined this bean as en Entity
-@Table(name = "snap") // corresponding name of the table inside of the database
+/**
+ * Snap Entity
+ * <p>
+ * Represents a code entity in the database.
+ */
+@Data
+@Entity
+@Table(name = "snap")
 public class Snap {
 
-    @Id // defined the field as the primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // set the strategy of the primary key generation
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -27,13 +32,13 @@ public class Snap {
 
     private Long snap;
 
-    @Column(name="image_url") // redefined the name of the field in the table as "last_name"
+    @Column(name="image_url")
     private String imageUrl;
 
     private String location;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="created_date") // redefined the name of the field in the table as "last_name"
+    @Column(name="created_date")
     private Date createdDate;
 
     /** override the method toString() of the class

@@ -27,6 +27,12 @@ import com.example.api.filter.JwtAuthentificationFilter;
 
 import lombok.Data;
 
+/**
+ * Configuration class for defining security configurations for the application.
+ * @Data Lombok annotation that automatically generates getters, setters, toString, equals, and hashCode methods for the class fields.
+ * @Configuration Indicates that the class is a configuration class, providing bean definitions and other application configuration.
+   @EnableWebSecurity Enables Spring Security's web security features in the application.
+*/
 @Data
 @Configuration
 @EnableWebSecurity
@@ -48,51 +54,96 @@ public class SecurityConfig {
   CustomLogoutHandler customLogoutHandler;
 
     /**
-     * The incoming request will pass throught this filter chain before the arriving to controllers
-     * @param http - http security chain
-     * @return - the http security chain
-     * @throws Exception
+     * Defines the security filter chain for handling incoming requests.
+     *
+     * @param http the HttpSecurity object to configure security settings
+     * @return the configured security filter chain
+     * @throws Exception if an error occurs during configuration
      */
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-      // disable cross platform access
+      /**
+       * Disables CSRF protection in the HTTP security configuration. (Cross Platform)
+       */
       http.csrf(AbstractHttpConfigurer::disable);
 
-      // keep default authentification for http request
+      /**
+       * Configures HTTP Basic authentication with default settings in the HTTP security configuration.
+       */
       http.httpBasic(Customizer.withDefaults());
 
-      // allow to access all the page without define role
+      /**
+       * Configures request authorization rules in the HTTP security configuration.
+       * - Requests to specific endpoints are authenticated.
+       * - Requests to "/error" endpoint are permitted without authentication.
+       * - All other requests require either "USER" or "ADMIN" authority.
+       */
       http.authorizeHttpRequests(req -> 
         req.requestMatchers("/login/**", "/register/**", "/validate_accout/**", "/validate/**", "/forget_password/**", "/reset_password/**").authenticated().
         requestMatchers("/error").permitAll()
         .anyRequest().hasAnyAuthority("USER", "ADMIN")
-        
       );
 
+      /**
+       * Sets the UserDetailsService to be used for authentication in the HTTP security configuration.
+       */
       http.userDetailsService(userDetailsService);
 
+      /**
+       * Configures exception handling in the HTTP security configuration.
+       * - Sets a custom access denied handler and sets an HTTP status entry point for unauthorized access.
+       */
       http.exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));  
 
-      // disable session creation because this server is a REST API
+      /**
+       * Configures session management in the HTTP security configuration.
+       * - Sets the session creation policy to STATELESS to indicate that no HTTP session should be created.
+       */
       http.sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-      // add authentificationFilter before the user password login page to authenticate with a token instead of username password
+      /**
+       * Adds filters to the HTTP security configuration after the specified filters.
+       * - Adds JwtAuthentificationFilter after UsernamePasswordAuthenticationFilter.
+       * - Adds AuthentificationFilter after JwtAuthentificationFilter.
+       */
       http.addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class);
       http.addFilterAfter(authFilter, JwtAuthentificationFilter.class);
 
+
+    /**
+     * Configures logout behavior in the HTTP security configuration.
+     * - Specifies the logout URL ("/logout").
+     * - Adds a custom logout handler.
+     * - Sets a custom logout success handler to clear the security context.
+     */
       http.logout(l -> l.logoutUrl("/logout")
       .addLogoutHandler(customLogoutHandler)
       .logoutSuccessHandler((req, res, auth) -> SecurityContextHolder.clearContext()));
-      // build the filterChain
+
+    /**
+     * Builds the HTTP security configuration and returns the configured HttpSecurity object.
+     */
       return http.build();
     }
 
+    /**
+     * Creates a password encoder bean for encoding passwords.
+     *
+     * @return the password encoder bean
+    */
     @Bean
     PasswordEncoder passwordEncoder() {
       return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Creates an AuthenticationManager bean.
+     *
+     * @param configuration the AuthenticationConfiguration object
+     * @return the AuthenticationManager bean
+     * @throws Exception if an error occurs while creating the bean
+    */
     @Bean
     AuthenticationManager authentificationManager(AuthenticationConfiguration configuration) throws Exception {
       return configuration.getAuthenticationManager();

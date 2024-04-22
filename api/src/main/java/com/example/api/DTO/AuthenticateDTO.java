@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+/**
+ * Data Transfer Object (DTO) classes for authentication-related requests and responses.
+ */
 public class AuthenticateDTO {
     @Data
     @AllArgsConstructor

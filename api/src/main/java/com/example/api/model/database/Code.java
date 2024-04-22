@@ -17,6 +17,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import com.example.api.model.enums.Type;
 
+
+/**
+ * Code Entity
+ * <p>
+ * Represents a code entity in the database.
+ */
 @Entity
 @Table(name = "code")
 @Data

@@ -14,6 +14,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * Token Entity
+ * <p>
+ * Represents a code entity in the database.
+ */
 @Entity
 @Table(name = "token")
 @Data

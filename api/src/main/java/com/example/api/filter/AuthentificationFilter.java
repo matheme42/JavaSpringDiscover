@@ -16,9 +16,10 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-/** AuthentificationFilter
- * - check if the token is present and valid
- * - Authorize or not the request
+/**
+ * AuthenticationFilter
+ * <p>
+ * This filter checks if the token is present and valid, and authorizes or denies the request accordingly.
  */
 @Component
 public class AuthentificationFilter extends GenericFilterBean {
@@ -28,22 +29,28 @@ public class AuthentificationFilter extends GenericFilterBean {
     SecretConfig secretConfig;
     
     /**
-     * doFilter is call for each incoming request
-     * check that the token is valid a set the security context with the AuthentificationApiKey created
+     * doFilter is called for each incoming request.
+     * It checks if the token is valid and sets the security context with the AuthenticationApiKey created.
+     *
+     * @param request  the request to process
+     * @param response the response to send
+     * @param chain    the filter chain
+     * @throws IOException      if an I/O error occurs
+     * @throws ServletException if a servlet error occurs
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String apiKey = ((HttpServletRequest) request).getHeader(secretConfig.getAUTHENTICATE_TOKEN_NAME());
 
-        // create the authentification token
+        // Create the authentication token
         Authentication authentication = new AuthentificationApiKey(apiKey, !(apiKey == null || !apiKey.equals(secretConfig.getAUTHENTICATE_TOKEN())));
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            // change the default user password authentification with a token authentification
+            // Change the default user password authentication with a token authentication
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
             SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
         }
-        // create the new filter
+        // Proceed with the next filter
         chain.doFilter(request, response);
     }
     

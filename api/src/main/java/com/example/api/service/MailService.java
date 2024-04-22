@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.api.config.SecretConfig;
 
+/**
+ * MailService Class
+ * <p>
+ * Service class for sending emails.
+ */
 @Service
 public class MailService {
     
@@ -17,6 +22,14 @@ public class MailService {
     @Autowired
     private SecretConfig secretConfig;
 
+    /**
+     * Sends a simple email message.
+     *
+     * @param to      the recipient's email address
+     * @param subject the subject of the email
+     * @param text    the content of the email
+     * @throws MailException if an error occurs while sending the email
+     */    
     public void sendSimpleMessage(String to, String subject, String text) throws MailException {
         SimpleMailMessage message = new SimpleMailMessage(); 
         

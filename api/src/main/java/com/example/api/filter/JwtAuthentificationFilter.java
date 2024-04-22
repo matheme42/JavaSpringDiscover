@@ -20,6 +20,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
+/**
+ * JwtAuthenticationFilter
+ * <p>
+ * This filter intercepts incoming requests and checks for JWT authentication tokens in the Authorization header.
+ * It validates the token, loads the user details, and sets the authentication in the SecurityContextHolder.
+ */
 @Component
 public class JwtAuthentificationFilter extends OncePerRequestFilter {
 
@@ -29,32 +36,57 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    /**
+     * Intercepts incoming requests and performs JWT authentication.
+     *
+     * @param request     the incoming HTTP request
+     * @param response    the HTTP response
+     * @param filterChain the filter chain
+     * @throws ServletException if a servlet error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return ;
-        }
-        
-        String token = authHeader.substring(7);
+    // Extract the Authorization header which contains the JWT token
+    String authHeader = request.getHeader("Authorization");
+    // Check if the Authorization header is missing or does not start with "Bearer "
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // If missing or invalid, proceed with the next filter in the chain
+        filterChain.doFilter(request, response);
+        return;
+    }
 
-        String username = jwtService.extractUsername(token);
+    // Extract the token from the Authorization header
+    String token = authHeader.substring(7);
+
+    // Extract the username from the JWT token
+    String username = jwtService.extractUsername(token);
+        
+        // Check if the username is extracted successfully and if no authentication is already set in the SecurityContextHolder
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
+                // Load user details associated with the username
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,  userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    if (!jwtService.isValid(token, userDetails)) authToken.setAuthenticated(false);
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                // Create an authentication token with the user details and authorities
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                // Set the details of the authentication token
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // Validate the token against user details
+                if (!jwtService.isValid(token, userDetails)) authToken.setAuthenticated(false);
+                // Set the authentication in the SecurityContextHolder
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                // Proceed with the next filter in the chain
                 filterChain.doFilter(request, response);
             } catch (Exception e) {
+                // If an exception occurs during authentication, set the HTTP status to UNAUTHORIZED
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
             }
             return ;
         }
+       
+        // Proceed with the next filter
         filterChain.doFilter(request, response);
     }
     

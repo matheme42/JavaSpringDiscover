@@ -1,22 +1,27 @@
-package com.example.api;
+	package com.example.api;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+	import org.springframework.boot.SpringApplication;
+	import org.springframework.boot.autoconfigure.SpringBootApplication;
+	import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+	import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 
-/** Api Application
- * This is the Bean Boot class of this Spring application
- * the Default Security Context has bean replace by a new one
-*/
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
-public class ApiApplication {
-
-	/** EntryPoint
-	 * start the spring frameworks with the ApiApplication.class as primarySource
-	 * @param args
+	/**
+	 * Api Application
+	 * <p>
+	 * This is the main class of the Spring Boot application.
+	 * The default Security Context has been replaced by a new one.
 	 */
-	public static void main(String[] args) {
-		SpringApplication.run(ApiApplication.class, args);
+	@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
+	public class ApiApplication {
+
+		/**
+		 * EntryPoint
+		 * <p>
+		 * Starts the Spring framework with ApiApplication.class as the primary source.
+		 *
+		 * @param args command-line arguments
+		 */
+		public static void main(String[] args) {
+			SpringApplication.run(ApiApplication.class, args);
+		}
 	}
-}

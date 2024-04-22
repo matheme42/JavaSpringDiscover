@@ -18,12 +18,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * User Entity
+ * <p>
+ * Represents a user entity in the database.
+ */
 @Data
+@Table(name = "user")
 @Entity
 public class User implements UserDetails {
  
@@ -58,26 +65,51 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Code> codes;
 
+    /**
+     * Retrieves the authorities granted to the user.
+     *
+     * @return the authorities granted to the user
+     */    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    /**
+     * Indicates whether the user's account has expired.
+     *
+     * @return true if the user's account is valid, false otherwise
+     */    
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    /**
+     * Indicates whether the user is locked or unlocked.
+     *
+     * @return true if the user is not locked, false otherwise
+     */    
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    /**
+     * Indicates whether the user's credentials (password) has expired.
+     *
+     * @return true if the user's credentials are valid, false otherwise
+     */    
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    /**
+     * Indicates whether the user is enabled or disabled.
+     *
+     * @return true if the user is enabled, false otherwise
+     */
     @Override
     public boolean isEnabled() {
         return role != Role.REGISTER;
