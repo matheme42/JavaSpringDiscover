@@ -1,6 +1,7 @@
 package com.example.api.service;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -52,6 +53,24 @@ public class JwtService {
         return generateToken(user, 600000); // generate token with 10 min expiration
     }
 
+
+    /**
+     * Generates a mqtt token for the given user.
+     *
+     * @param user the user for whom the token is generated
+     * @return the generated code token
+     */
+    public String generateMqttToken(User user) {
+        return Jwts
+        .builder()
+        .subject(UUID.randomUUID().toString())
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + 86400000))
+        .signWith(getSigningKey())
+        .compact();        
+    }
+
+
     private String generateToken(User user, int expirationInMilli) {
         return Jwts
         .builder()
@@ -92,7 +111,7 @@ public class JwtService {
         return (username.equals(user.getUsername().toString())) && !isTokenExpired(token) && isTokenValid;
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 

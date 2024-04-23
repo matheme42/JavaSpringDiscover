@@ -9,11 +9,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.api.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,6 +34,7 @@ import lombok.Data;
 @Data
 @Table(name = "user")
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "tokens", "codes", "friendships", "authorities", "acls"})
 public class User implements UserDetails {
  
     @Id
@@ -55,15 +58,27 @@ public class User implements UserDetails {
     @NotBlank(message = "password is mandatory")
     private String password;
 
+    @Column(name = "mqtt_password", nullable = false)
+    private String mqttPassword; // JWT token
+
+    @Column(name = "mqtt_password_hash", nullable = false)
+    private String mqttPasswordHash; // JWT token
+
     @Enumerated(value = EnumType.STRING)
     @NotNull(message = "role is mandatory")
     Role role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Token> tokens;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Code> codes;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Friendship> friendships;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Acl> acls;
 
     /**
      * Retrieves the authorities granted to the user.

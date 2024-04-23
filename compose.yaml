@@ -72,17 +72,22 @@ services:
 
   # mqtt5 eclipse-mosquitto
   mqtt5:
-    image: eclipse-mosquitto
+    image: iegomez/mosquitto-go-auth
     container_name: mqtt5
+    restart: on-failure:2
+    hostname: mqtt5
+    depends_on:
+      - mysql
+      - api  
     networks:
-      - mosquitto
+      - backend
     ports:
       - "8083:8083" #default mqtt port for websockets
     volumes:
+      - ./mosquitto/conf:/etc/mosquitto/:rw
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
-    restart: unless-stopped
 
 
 volumes:
@@ -92,4 +97,3 @@ networks:
   backend:
   frontend:
   frontendangular:
-  mosquitto:

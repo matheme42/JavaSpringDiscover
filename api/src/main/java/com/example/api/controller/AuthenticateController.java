@@ -1,16 +1,13 @@
 package com.example.api.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.Vector;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.api.DTO.AuthenticateDTO.LoginRequestDTO;
@@ -18,6 +15,7 @@ import com.example.api.DTO.AuthenticateDTO.ResetPasswordRequestDTO;
 import com.example.api.DTO.AuthenticateDTO.SendUserCodeDTO;
 import com.example.api.DTO.AuthenticateDTO.TokenRequestDTO;
 import com.example.api.config.SecretConfig;
+import com.example.api.config.CustomHandler.CustomBadRequestHandler;
 import com.example.api.model.database.User;
 import com.example.api.model.enums.Role;
 import com.example.api.model.enums.Type;
@@ -42,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * - POST /reset_password: Handles resetting the password with a code.
  */
 @RestController
-public class AuthenticateController {
+public class AuthenticateController extends CustomBadRequestHandler {
 
     @Autowired
     SecretConfig secretConfig;
@@ -55,20 +53,6 @@ public class AuthenticateController {
 
     @Autowired
     MailService mailService;
-
-    /**
-     * Handles bad request responses for validation errors.
-     *
-     * @param bindingResult the BindingResult containing validation errors
-     * @return a ResponseEntity containing the error details
-     */
-    private ResponseEntity<HashMap<String, Object>> handleBadRequest(BindingResult bindingResult) {
-        List<String> result = new Vector<>();
-        for (FieldError e : bindingResult.getFieldErrors()) {
-            result.add("field: " + e.getField() + ", rejected value: " + e.getRejectedValue() + ", message: " + e.getDefaultMessage());
-        }
-        return new ResponseEntity<>(new HashMap<>() {{put("error", result);}}, HttpStatus.BAD_REQUEST);
-    }
 
     /**
      * Sends a validation account mail to the user.

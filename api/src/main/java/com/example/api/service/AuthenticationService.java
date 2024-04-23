@@ -136,11 +136,10 @@ public class AuthenticationService {
             put("error", "email address already used");
         }};
 
-        user.setUsername(user.getUsername());
-        user.setEmail(user.getEmail());
-        user.setImage(user.getImage());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(user.getRole());
+        String mqttToken = jwtService.generateMqttToken(user);
+        user.setMqttPassword(mqttToken);
+        user.setMqttPasswordHash(passwordEncoder.encode(mqttToken));
         user = userRepository.save(user);
 
         if (user.getRole() == Role.REGISTER) return new HashMap<>() {{put("token", "");}};

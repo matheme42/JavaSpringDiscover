@@ -81,8 +81,9 @@ public class SecurityConfig {
        */
       http.authorizeHttpRequests(req -> 
         req.requestMatchers("/login/**", "/register/**", "/validate_accout/**", "/validate/**", "/forget_password/**", "/reset_password/**").authenticated().
-        requestMatchers("/error", "/employee/**", "employees/**", "snap/**", "snaps/**").permitAll()
-        .anyRequest().hasAnyAuthority("USER", "ADMIN")
+        requestMatchers("/error", "/employee/**", "employees/**", "snap/**", "snaps/**").permitAll().
+        requestMatchers("/**").hasAnyAuthority("USER", "ADMIN")
+        .anyRequest().authenticated()
       );
 
       /**
