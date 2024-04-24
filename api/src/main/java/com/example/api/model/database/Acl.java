@@ -17,6 +17,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 
+/**
+ * Database model class for ACL (Access Control List).
+ */
 @Entity
 @Table(name = "acl")
 @Data

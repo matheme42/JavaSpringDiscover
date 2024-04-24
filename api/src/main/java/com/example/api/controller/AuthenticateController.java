@@ -1,3 +1,6 @@
+/**
+ * Controller class for handling authentication-related endpoints.
+ */
 package com.example.api.controller;
 
 import java.util.HashMap;

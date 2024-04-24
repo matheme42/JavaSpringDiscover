@@ -2,14 +2,12 @@ services:
   mysql:
     container_name: mysqlserver  
     hostname: mysql
-    build:
-      context: ./database
-      args:
-        - MYSQL_DATABASE=db_example
-        - MYSQL_USER=springuser
-        - MYSQL_PASSWORD=ThePassword
-        - MYSQL_ROOT_PASSWORD=my_secret_pw
-      dockerfile: Dockerfile
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=db_example
+      - MYSQL_USER=springuser
+      - MYSQL_PASSWORD=ThePassword
+      - MYSQL_ROOT_PASSWORD=ThePassword
     restart: on-failure:2
     volumes:
       - mysql-data:/var/lib/mysql

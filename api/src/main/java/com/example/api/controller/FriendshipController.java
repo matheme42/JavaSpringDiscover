@@ -1,17 +1,17 @@
+/**
+ * Controller class for managing friendships between users.
+ */
 package com.example.api.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +33,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
+/**
+ * Controller class for managing friendships between users.
+ */
 @RestController
 public class FriendshipController extends CustomBadRequestHandler {
 
@@ -43,6 +45,12 @@ public class FriendshipController extends CustomBadRequestHandler {
     @Autowired
     UserService userService;
 
+    /**
+     * Retrieves the list of friendships for the authenticated user, along with pending invitations.
+     *
+     * @param user The authenticated user.
+     * @return ResponseEntity<HashMap<String, Object>> A response entity containing a map with 'friends' and 'pendingInvitation' lists.
+     */
     @GetMapping("/friendships")
     public ResponseEntity<HashMap<String, Object>> listFriendships(@AuthenticationPrincipal User user) {
         List<Friendship> friendships = new ArrayList<>();
@@ -57,6 +65,14 @@ public class FriendshipController extends CustomBadRequestHandler {
         return ResponseEntity.ok(map);
     }
 
+    /**
+     * Deletes a friendship between the authenticated user and another user.
+     *
+     * @param username The username of the user to remove friendship with.
+     * @param user The authenticated user.
+     * @param result Binding result for validation errors.
+     * @return ResponseEntity<HashMap<String, Object>> A response entity indicating success or failure.
+     */
     @DeleteMapping("/friendship")
     public ResponseEntity<HashMap<String, Object>> deleteFriendship(@RequestParam("username") String username, @AuthenticationPrincipal User user, BindingResult result) {
         if (result.hasErrors()) return handleBadRequest(result);
@@ -69,7 +85,7 @@ public class FriendshipController extends CustomBadRequestHandler {
 
         Optional<Friendship> searchFriendship = friendshipService.getFriendshipBetweenUsers(user, claimantUser);
         if (searchFriendship.isEmpty()) {
-            return badRequestErrorJsonResponse("friendship doest not exist");
+            return badRequestErrorJsonResponse("friendship does not exist");
         }
   
         Friendship friendship = searchFriendship.get();
@@ -77,6 +93,14 @@ public class FriendshipController extends CustomBadRequestHandler {
         return ResponseEntity.ok(new HashMap<>(){{put("message", "ok");}});
     }
 
+    /**
+     * Creates a friendship invitation from the authenticated user to another user.
+     *
+     * @param user The authenticated user.
+     * @param request The friendship invitation request.
+     * @param result Binding result for validation errors.
+     * @return ResponseEntity<HashMap<String, Object>> A response entity indicating success or failure.
+     */
     @PostMapping("/friendship_request")
     public ResponseEntity<HashMap<String, Object>> createFriendshipInvitation(@AuthenticationPrincipal User user, @RequestBody @Valid FriendshipInvitationDTO request, BindingResult result) {
         if (result.hasErrors()) return handleBadRequest(result);
@@ -95,7 +119,7 @@ public class FriendshipController extends CustomBadRequestHandler {
   
         Friendship friendship = searchFriendship.isPresent() ? searchFriendship.get() : new Friendship();
         if (searchFriendship.isPresent() && friendship.getIs_accepted() != null && friendship.getIs_accepted() == true) {
-            return badRequestErrorJsonResponse("this relation already exist");
+            return badRequestErrorJsonResponse("this relation already exists");
         }
 
         friendship.setFriend(friend);
@@ -107,6 +131,14 @@ public class FriendshipController extends CustomBadRequestHandler {
     }
 
 
+    /**
+     * Replies to a friendship invitation sent to the authenticated user.
+     *
+     * @param user The authenticated user.
+     * @param request The reply to friendship invitation request.
+     * @param result Binding result for validation errors.
+     * @return ResponseEntity<HashMap<String, Object>> A response entity indicating success or failure.
+     */
     @PutMapping("/friendship_request")
     public ResponseEntity<HashMap<String, Object>> replyFriendshipInvitation(@AuthenticationPrincipal User user, @RequestBody @Valid ReplyFriendshipInvitationDTO request, BindingResult result) {
         if (result.hasErrors()) return handleBadRequest(result);
@@ -119,7 +151,7 @@ public class FriendshipController extends CustomBadRequestHandler {
 
         Optional<Friendship> searchFriendship = friendshipService.findPendingFriendshipWithUser(user, claimantUser);
         if (searchFriendship.isEmpty()) {
-            return badRequestErrorJsonResponse("invitation doest not exist");
+            return badRequestErrorJsonResponse("invitation does not exist");
         }
   
         Friendship friendship = searchFriendship.get();

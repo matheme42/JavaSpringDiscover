@@ -12,14 +12,12 @@ import com.example.api.model.database.User;
 import com.example.api.repository.UserRepository;
 
 /**
- * UserService Class
- * <p>
  * Service class for managing User entities.
  */
 @Service
 public class UserService implements UserDetailsService {
 
-    @Autowired // connect to the bean instance of UserRepository (auto instanciate by Spring)
+    @Autowired
     private UserRepository userRepository;
 
     /**
@@ -44,6 +42,12 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
+    /**
+     * Saves a user.
+     *
+     * @param user the user to be saved
+     * @return the saved user
+     */   
     public User save(User user) {
         return userRepository.save(user);
     }

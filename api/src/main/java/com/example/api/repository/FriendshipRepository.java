@@ -11,10 +11,19 @@ import org.springframework.stereotype.Repository;
 import com.example.api.model.database.Friendship;
 import com.example.api.model.database.User;
 
+/**
+ * Repository interface for Friendship entities.
+ */
 @Repository
 public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
     
 
+    /**
+     * Retrieves all friendships associated with a specific user.
+     * 
+     * @param user the user
+     * @return a list of friendships
+     */
     @Query("""
             Select t from Friendship t
             inner join User u on t.user.id = u.id
@@ -23,6 +32,13 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
         """)
     List<Friendship> findByUser(User user);
 
+    /**
+     * Retrieves a friendship between two users.
+     * 
+     * @param u1 the first user
+     * @param u2 the second user
+     * @return an optional friendship
+     */
     @Query("""
             Select t from Friendship t
             inner join User u on t.user.id = u.id
@@ -31,6 +47,13 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
         """)
     Optional<Friendship> findFriendshipBetweenUsers(User u1, User u2);
 
+    /**
+     * Retrieves a pending friendship with a user.
+     * 
+     * @param u1 the first user
+     * @param u2 the second user
+     * @return an optional pending friendship
+     */
     @Query("""
             Select t from Friendship t
             where t.friend = :u1 and t.user = :u2 and t.is_accepted = null
