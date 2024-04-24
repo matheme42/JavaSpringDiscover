@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.PutMapping;
  * @service used SnapService
  */
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class SnapController {
     @Autowired // connect to the bean instance of SnapService  (auto instanciate by Spring)

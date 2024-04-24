@@ -1,6 +1,9 @@
 package com.example.api.config;
 
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import com.example.api.config.CustomHandler.CustomAccessDeniedHandler;
 import com.example.api.config.CustomHandler.CustomLogoutHandler;
@@ -148,5 +154,18 @@ public class SecurityConfig {
     @Bean
     AuthenticationManager authentificationManager(AuthenticationConfiguration configuration) throws Exception {
       return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    CorsFilter corsFilter() {
+      final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+      final CorsConfiguration config = new CorsConfiguration();
+      config.setAllowCredentials(true);
+      // Don't do this in production, use a proper list  of allowed origins
+      config.addAllowedOrigin("http://localhost:4200");
+      config.addAllowedHeader("*");
+      config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));
+      source.registerCorsConfiguration("/**", config);
+      return new CorsFilter(source);
     }
 }
