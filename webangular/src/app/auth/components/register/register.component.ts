@@ -49,5 +49,9 @@ export class RegisterComponent implements OnInit {
 
   parseRegisterMessage(map : any) : void {
     this.errorMessage = map['error'];
+    if (map['token']) {
+      this.auth.extractToken(map);
+      this.router.navigateByUrl('/')
+    }
   }
 }

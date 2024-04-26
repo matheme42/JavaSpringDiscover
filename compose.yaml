@@ -27,28 +27,9 @@ services:
       - ./api:/app
     networks:
       - frontend
-      - frontendangular
       - backend
     ports:
       - 9000:9000
-
-  web:
-    container_name: webserver
-    restart: on-failure:2
-    hostname: web
-    depends_on:
-      - mysql
-      - api  
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    volumes:
-      - ./web:/app
-    networks:
-      - frontend
-    ports:
-      - 9001:9001
-
 
   webangular:
     container_name: angularserver
@@ -64,7 +45,7 @@ services:
       - /app/node_modules
       - ./webangular:/app
     networks:
-      - frontendangular
+      - frontend
     ports:
       - 4200:4200
 
@@ -75,23 +56,33 @@ services:
     restart: on-failure:2
     hostname: mqtt5
     depends_on:
-      - mysql
-      - api  
+      - api
+      - redis
     networks:
-      - backend
+      - frontend
     ports:
       - "8083:8083" #default mqtt port for websockets
     volumes:
       - ./mosquitto/conf:/etc/mosquitto/:rw
-      - ./mosquitto/config:/mosquitto/config:rw
-      - ./mosquitto/data:/mosquitto/data:rw
-      - ./mosquitto/log:/mosquitto/log:rw
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis
+    hostname: redis
+    restart: on-failure:2
+    networks:
+      - frontend
+    expose:
+      - '6379'
+    command: redis-server /data/redis.conf --loglevel warning
+    volumes: 
+      - ./redis:/data
 
 
 volumes:
   mysql-data:
+  cache:
 
 networks:
   backend:
   frontend:
-  frontendangular:

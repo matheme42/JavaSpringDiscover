@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { LandingModule } from './landing/landing.module';
 import { AuthModule } from './auth/auth.module';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { AuthModule } from './auth/auth.module';
     AppRoutingModule,
     CoreModule,
     LandingModule,
-    AuthModule
+    AuthModule,
+    NgbModule
   ],
   bootstrap: [AppComponent]
 })

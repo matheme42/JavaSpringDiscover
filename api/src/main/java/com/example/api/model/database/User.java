@@ -34,7 +34,7 @@ import lombok.Data;
 @Data
 @Table(name = "user")
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "tokens", "codes", "friendships", "authorities", "acls"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "tokens", "codes", "friendships", "authorities"})
 public class User implements UserDetails {
  
     @Id
@@ -58,12 +58,6 @@ public class User implements UserDetails {
     @NotBlank(message = "password is mandatory")
     private String password;
 
-    @Column(name = "mqtt_password", nullable = false)
-    private String mqttPassword; // JWT token
-
-    @Column(name = "mqtt_password_hash", nullable = false)
-    private String mqttPasswordHash; // JWT token
-
     @Enumerated(value = EnumType.STRING)
     @NotNull(message = "role is mandatory")
     Role role;
@@ -76,9 +70,6 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Friendship> friendships;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Acl> acls;
 
     /**
      * Retrieves the authorities granted to the user.

@@ -36,8 +36,7 @@ export class LoginComponent implements OnInit {
     if (map['status']) {
       this.errorMessage = map['status'] == 401 ||400 ? "Username or Password invalid" : "An error occurd";
     } else {
-      this.router.navigateByUrl('/facesnaps')
+      this.router.navigateByUrl('/')
     }
   }
-
 }

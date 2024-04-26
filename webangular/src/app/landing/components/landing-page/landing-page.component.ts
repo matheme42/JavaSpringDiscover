@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -8,16 +9,13 @@ import { Router } from '@angular/router';
   styleUrl: './landing-page.component.scss'
 })
 export class LandingPageComponent {
+  constructor(private router: Router, private auth : AuthService) { }
 
-  userEmail! : string;
-
-  constructor(private router: Router) { }
-
-  onNavigate() : void {
-    this.router.navigateByUrl("/facesnaps")
+  onContinue() : void {
+    this.router.navigateByUrl('/auth/login')
   }
 
-  onSubmitForm(form: NgForm) : void {
-    console.log(form.value);
+  public get islogged() {
+    return this.auth.getUserToken() != null
   }
 }

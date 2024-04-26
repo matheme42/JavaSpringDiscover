@@ -1,12 +1,25 @@
-<div class="landing-block">
-    <form #emailForm="ngForm" (ngSubmit)="onSubmitForm(emailForm)">
-      <label>Inscrivez vous pour recevoir notre new letter </label>
-      <input type="email" id="emailInput" [(ngModel)]="userEmail" name="userEmail">
-      <button type="submit">OK</button>
-
-    </form>
-    <img src="assets/snapface.png" alt="Snapface logo">
-    <div class="landing-links">
-      <button (click)="onNavigate()">Continuer vers Snapface</button>
+<div class="background">
+    <div class="panel" *ngIf="!islogged; else home">
+      <div class="card">
+          <div class="title">
+            <h1>Bomberman</h1>
+            <p class="developpement">En développement</p>
+          </div>
+          <div class="card-content">
+            <p>
+              Découvrez le tout nouveau jeu Bomberman !
+              Plongez dans un univers explosif où stratégie et chaos se rencontrent.
+              Suivez avec enthousiasme l'évolution de ce projet passionnant pour des heures de divertissement frénétique.
+            </p>
+          </div>
+          <div class="title">
+            <p>- Maxence -</p>
+            <button type="submit" (click)="onContinue()" class="btn btn-primary">continue</button>
+          </div>
+      </div>
     </div>
-  </div>
+</div>
+
+<ng-template #home>
+  <app-home></app-home>
+</ng-template>

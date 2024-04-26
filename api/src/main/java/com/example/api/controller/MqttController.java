@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,7 +24,6 @@ import com.example.api.service.AclService;
 import com.example.api.service.JwtService;
 import com.example.api.service.UserService;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +48,8 @@ public class MqttController extends CustomBadRequestHandler {
     @Autowired
     AclService aclService;
 
+    @Autowired
+    private RedisTemplate<String, String> template;
     /**
      * Creates or updates a topic for the authenticated user.
      *
@@ -59,17 +62,32 @@ public class MqttController extends CustomBadRequestHandler {
     public ResponseEntity<HashMap<String, Object>> createOrUpdateTopicForUser(@AuthenticationPrincipal User user, @RequestBody @Valid CreateAclDTO body, BindingResult result) {
         if (result.hasErrors()) return handleBadRequest(result);
 
-        System.out.println(user.getAcls().size());
         Optional<Acl> saerchAcl = aclService.findAclsByUserAndTopic(user, body.getTopic());
         Acl acl = saerchAcl.isPresent() ? saerchAcl.get() : new Acl();
 
+        String topic = body.getTopic();
+        Integer rw = body.getRw();
+        String name = user.getUsername();
+
         acl.setUser(user);
-        acl.setRw(body.getRw());
-        acl.setTopic(body.getTopic());
-        acl.setUsername(user.getUsername());
+        acl.setRw(rw);
+        acl.setTopic(topic);
+        acl.setUsername(name);
         acl = aclService.save(acl);
 
-        return new ResponseEntity<>(new HashMap<>() {{put("message", "ok");}}, HttpStatus.OK);
+
+        try {
+            SetOperations<String, String> operator = template.opsForSet();
+            operator.remove(name + ":sacls", topic);
+            operator.remove(name + ":racls", topic);
+            operator.remove(name + ":wacls", topic);
+            if ((rw & 1) != 0) operator.add(name + ":racls", topic);
+            if ((rw & 2) != 0) operator.add(name + ":wacls", topic);
+            if ((rw & 4) != 0) operator.add(name + ":sacls", topic);
+            return new ResponseEntity<>(new HashMap<>() {{put("message", "ok");}}, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new HashMap<>() {{put("error", "cache server unavailable");}}, HttpStatus.SERVICE_UNAVAILABLE);
+        }
     }
 
     /**
@@ -80,22 +98,30 @@ public class MqttController extends CustomBadRequestHandler {
      */
     @GetMapping("/mqtt_password")    
     public ResponseEntity<HashMap<String, Object>> getMqttPassword(@AuthenticationPrincipal User user) {
-        boolean expired = true;
         try {
-            expired = jwtService.isTokenExpired(user.getMqttPassword());
-        } catch (ExpiredJwtException ex) {
-            expired = true;
+            SetOperations<String, String> operator = template.opsForSet();
+            String name = user.getUsername();
+            template.delete(name + ":sacls");
+            template.delete(name + ":racls");
+            template.delete(name + ":wacls");
+
+            aclService.findAclsByUser(user).forEach((acl) -> {
+                String topic = acl.getTopic();
+                Integer rw = acl.getRw();
+                if ((rw & 1) != 0) operator.add(name + ":racls", topic);
+                if ((rw & 2) != 0) operator.add(name + ":wacls", topic);
+                if ((rw & 4) != 0) operator.add(name + ":sacls", topic);
+            });    
+        } catch (Exception e) {
+            return new ResponseEntity<>(new HashMap<>() {{put("error", "cache server unavailable");}}, HttpStatus.SERVICE_UNAVAILABLE);
         }
 
-        if (expired) {
-            String jwtToken = jwtService.generateMqttToken(user);
-            user.setMqttPassword(jwtToken);
-            user.setMqttPasswordHash(passwordEncoder.encode(jwtToken));
-            user = userService.save(user);
+        try {
+            final String jwtToken = jwtService.generateMqttToken(user);
+            template.opsForValue().set(user.getUsername(), passwordEncoder.encode(jwtToken));
+            return new ResponseEntity<>(new HashMap<>() {{put("password", jwtToken);}}, HttpStatus.OK);
+        } catch (Exception e) {
+           return new ResponseEntity<>(new HashMap<>() {{put("error", "cache server unavailable");}}, HttpStatus.SERVICE_UNAVAILABLE);
         }
-
-        final String mqtttoken = user.getMqttPassword();
-
-        return new ResponseEntity<>(new HashMap<>() {{put("password", mqtttoken);}}, HttpStatus.OK);
     }
 }

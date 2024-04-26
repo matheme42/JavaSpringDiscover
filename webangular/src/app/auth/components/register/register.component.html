@@ -1,8 +1,11 @@
-<div *ngIf="registerForm$ | async as user"></div>
-<div class="form-card" *ngIf="errorMessage">
-  <p>{{errorMessage}}</p>
-</div>
-<div class="form-card">
+
+<div class="background">
+  <div *ngIf="registerForm$ | async as user"></div>
+  <div class="form-card" *ngIf="errorMessage">
+    <p>{{errorMessage}}</p>
+  </div>
+  <div class="form-card">
+    <h2>S'enregistrer</h2>
     <form [formGroup]="registerForm">
         <div class="form-group">
           <label for="username">Username</label>
@@ -32,6 +35,8 @@
         </div>
         <div class="action-buttons">
             <button type="submit" (click)="onRegister()" [disabled]="registerForm.invalid">Register</button>
+            <a type="submit" routerLink="/auth/login">se connecter</a>
         </div>
       </form>
     </div>
+</div>

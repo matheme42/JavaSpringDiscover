@@ -137,9 +137,6 @@ public class AuthenticationService {
         }};
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        String mqttToken = jwtService.generateMqttToken(user);
-        user.setMqttPassword(mqttToken);
-        user.setMqttPasswordHash(passwordEncoder.encode(mqttToken));
         user = userRepository.save(user);
 
         if (user.getRole() == Role.REGISTER) return new HashMap<>() {{put("token", "");}};
@@ -163,6 +160,9 @@ public class AuthenticationService {
         }};
 
         User user = searchUser.get();
+        revokeAllTokenByUser(user);
+
+
         String jwt = generateAuthToken(user);
         return new HashMap<>() {{put("token", jwt);}};
     }

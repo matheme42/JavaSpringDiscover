@@ -1,19 +1,22 @@
-<div class="form-card" *ngIf="errorMessage">
-  <p>{{errorMessage}}</p>
-</div>
-<div class="form-card">
-    <h2>Connexion</h2>
-    <form #emailForm="ngForm" (ngSubmit)="onLogin()">
-      <div class="form-group">
-        <label for="email">Username</label>
-        <input type="text" id="usernameInput" [(ngModel)]="login.username" name="username">
-      </div>
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <input type="text" id="passwordInput" [(ngModel)]="login.password" name="password">
-      </div>
-      <div class="action-buttons">
-        <button type="submit">Connect</button>
-      </div>
-  </form>
+<div class="background">
+  <div class="form-card" *ngIf="errorMessage">
+    <p>{{errorMessage}}</p>
+  </div>
+  <div class="form-card">
+      <h2>Connexion</h2>
+      <form #emailForm="ngForm" (ngSubmit)="onLogin()">
+        <div class="form-group">
+          <label for="email">Username</label>
+          <input type="text" id="usernameInput" [(ngModel)]="login.username" name="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="text" id="passwordInput" [(ngModel)]="login.password" name="password">
+        </div>
+        <div class="action-buttons">
+          <button type="submit">Connect</button>
+          <a type="submit" routerLink="/auth/register">creer son compte</a>
+        </div>
+    </form>
+  </div>
 </div>

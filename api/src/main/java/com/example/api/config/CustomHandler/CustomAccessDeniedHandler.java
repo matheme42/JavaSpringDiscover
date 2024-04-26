@@ -1,8 +1,11 @@
 package com.example.api.config.CustomHandler;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +32,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
      * @throws ServletException if a servlet-specific error occurs
      */
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response,
-            AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        response.setStatus(403);
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        var details = SecurityContextHolder.getContext().getAuthentication().getDetails();
+        response.setStatus(details == null ? 401 : 403);
     }
     
 }

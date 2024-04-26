@@ -1,0 +1,18 @@
+.beige {
+    background-color: beige;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.endcard {
+    padding: 8px;
+}
+
+.card-body {
+    display: flex;
+    justify-content: space-around;
+}
