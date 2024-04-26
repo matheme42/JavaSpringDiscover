@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,12 +23,15 @@ import com.example.api.config.CustomHandler.CustomBadRequestHandler;
 import com.example.api.model.database.User;
 import com.example.api.model.enums.Role;
 import com.example.api.model.enums.Type;
+import com.example.api.service.AclService;
 import com.example.api.service.AuthenticationService;
 import com.example.api.service.MailService;
+import com.example.api.service.MqttService;
 import com.example.api.service.UserService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -56,6 +60,12 @@ public class AuthenticateController extends CustomBadRequestHandler {
 
     @Autowired
     MailService mailService;
+    
+    @Autowired
+    AclService aclService;
+
+    @Autowired
+    MqttService mqttService;
 
     /**
      * Sends a validation account mail to the user.
@@ -148,6 +158,24 @@ public class AuthenticateController extends CustomBadRequestHandler {
         HashMap<String, Object> response = authenticationService.authenticate(request);
         return new ResponseEntity<>(response, response.containsKey("token") ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
+
+
+    /**
+     * Retrieves the MQTT password for the authenticated user.
+     *
+     * @param user The authenticated user.
+     * @return ResponseEntity<HashMap<String, Object>> A response entity containing the MQTT password.
+     */
+    @GetMapping("/login")    
+    public ResponseEntity<HashMap<String, Object>> getMqttPassword(@AuthenticationPrincipal User user) {
+        HashMap<String, Object> cacheResponse = aclService.clearAndFillAclCacheForUser(user);
+        if (cacheResponse.containsKey("error")) return new ResponseEntity<>(cacheResponse, HttpStatus.SERVICE_UNAVAILABLE);
+
+        HashMap<String, Object> response = mqttService.createOrUpdateTopicForUser(user);
+        if (cacheResponse.containsKey("error")) return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
+        return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
 
     /**
      * Handles sending a validation account code.
