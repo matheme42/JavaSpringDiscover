@@ -1,0 +1,63 @@
+<div class="absolute bottom-4 right-2 max-w-full rounded-lg">
+    <div class="flex flex-row-reverse overflow-x-auto items-end rounded-lg">
+        <div *ngFor="let chat of chatService.chatOpenState">
+            <div class="mx-1 mat-expansion-panel-flip rounded-lg">
+                <mat-expansion-panel class="m-0 p-0" [expanded]="chat.state" [(expanded)]="chat.state"
+                    togglePosition="before" hideToggle="true" class="max-w-80 min-w-80" (opened)="chat.state = true"
+                    (closed)="chat.state = false">
+                    @if (chat.state == false) {
+                    <mat-expansion-panel-header class="mat-expansion-panel-flip flex justify-between">
+                        <mat-panel-title>
+                            <div>{{chat.user.username}}</div>
+                        </mat-panel-title>
+                        <button mat-icon-button matTooltip="Close" (click)="closeChat(chat)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </mat-expansion-panel-header>
+                    } @else {
+                    <form [formGroup]="messageForm"
+                        class="flex flex-row justify-center items-center mb-4 pb-4 mat-expansion-panel-flip">
+                        <div class="form-group mr-4 ml-2">
+                            <input class=" bg-slate-200 rounded-lg p-1" autofocus id="content" type="text" formControlName="content">
+                        </div>
+                        <div class="action-buttons mr-2">
+                            <button mat-menu-item class="my-2" (click)="onSubmitMessage(chat.user)">
+                                <mat-icon>send</mat-icon>
+                            </button>
+                        </div>
+                    </form>
+                    }
+                    <div class="mat-expansion-panel-flip">
+                        <div class="flex flex-row justify-between">
+                            <p>{{chat.user.username}}</p>
+                            <div>
+                                <button mat-menu-item class="my-2" (click)="reduceChat(chat)">
+                                    <mat-icon>remove</mat-icon>
+                                </button>
+                                <button mat-menu-item class="my-2" (click)="closeChat(chat)">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <div class=" max-h-96 overflow-auto">
+                            @for (message of messages(chat.user); track $index) {
+                            <div class="flex">
+                                <div *ngIf="!isAuthUser(message.user_name)" class="grow"></div>
+                                <div class="my-1 grow p-0">
+                                    <p [ngClass]="!isAuthUser(message.user_name) ? 'bg-blue-500 border-blue-500': 'bg-gray-500 border-gray-500'"
+                                        class="border-2 rounded-lg bg-blue-500 border-blue-500 p-1">{{message.content}}
+                                    </p>
+                                    <div class="flex flex-row justify-end items-center">
+                                        <p>{{message.date | date: 'HH:mm' }}</p>
+                                    </div>
+                                </div>
+                                <div *ngIf="isAuthUser(message.user_name)" class="grow"></div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+            </div>
+        </div>
+    </div>
+</div>

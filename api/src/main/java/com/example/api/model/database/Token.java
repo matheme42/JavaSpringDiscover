@@ -23,7 +23,7 @@ import lombok.Data;
 @Table(name = "token")
 @Data
 public class Token {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")

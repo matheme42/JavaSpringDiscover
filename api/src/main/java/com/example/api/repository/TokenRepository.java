@@ -39,7 +39,8 @@ public interface TokenRepository extends JpaRepository<Token, UUID>{
      * @return an optional containing the token if found, otherwise empty
      */    
     @Query("""
-        Select t from Token t
+        Select t from Token t inner join User u
+        on t.user.id = u.id
         where t.token = :token
     """)
     Optional <Token> findByToken(String token);

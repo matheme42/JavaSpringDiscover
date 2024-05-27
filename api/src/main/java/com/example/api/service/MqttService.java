@@ -13,9 +13,6 @@ import com.example.api.model.database.User;
 public class MqttService {
 
     @Autowired
-    private JwtService jwtService;
-
-    @Autowired
     RedisTemplate<String, String> template;
 
     @Autowired
@@ -23,11 +20,19 @@ public class MqttService {
 
     public HashMap<String, Object> createOrUpdateTopicForUser(User user) {
         try {
-            final String jwtToken = jwtService.generateMqttToken(user);
+            final String jwtToken = "";
             template.opsForValue().set(user.getUsername(), passwordEncoder.encode(jwtToken));
-            return new HashMap<>() {{put("password", jwtToken);}};
+            return new HashMap<>() {
+                {
+                    put("password", jwtToken);
+                }
+            };
         } catch (Exception e) {
-           return new HashMap<>() {{put("error", "cache server unavailable");}};
+            return new HashMap<>() {
+                {
+                    put("error", "cache server unavailable");
+                }
+            };
         }
     }
 }

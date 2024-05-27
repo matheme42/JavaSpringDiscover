@@ -44,7 +44,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
             inner join User u on t.user.id = u.id
             inner join User v on t.friend.id = v.id
             where (t.user = :u1 and t.friend = :u2) or (t.user = :u2 and t.friend = :u1)
-        """)
+    """)
     Optional<Friendship> findFriendshipBetweenUsers(User u1, User u2);
 
     /**
@@ -56,7 +56,9 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
      */
     @Query("""
             Select t from Friendship t
-            where t.friend = :u1 and t.user = :u2 and t.is_accepted = null
-        """)
+            inner join User u on t.user.id = u.id
+            inner join User v on t.friend.id = v.id
+            where (t.friend = :u1 and t.user = :u2 and t.is_accepted is null)
+    """)
     Optional<Friendship> findPendingFriendshipWithUser(User u1, User u2);    
 }

@@ -1,5 +1,6 @@
 package com.example.api.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,16 @@ public class UserService implements UserDetailsService {
      */   
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    /**
+     * Retrieves a user by a pattern
+     *
+     * @param pattern the pattern use to find users
+     * @return an optional containing the tableau of user if found, otherwise empty
+     */   
+    public List<User> findByUSernamePattern(String pattern) {
+        return userRepository.findByUSernamePattern(pattern);
     }
 
     /**

@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+@if (socketStatus !== undefined) {
+    <router-outlet></router-outlet>
+    <app-chat></app-chat>
+}
+@else {
+    loading
+}

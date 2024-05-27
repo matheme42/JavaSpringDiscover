@@ -1,15 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LandingPageComponent } from './landing/components/landing-page/landing-page.component';
+import { HomeComponent } from './home/components/home/home.component';
 
-
-const routes: Routes = [
-  { path: 'facesnaps', loadChildren: () => import('./facesnaps/face-snaps.module').then(m => m.FacesnapsModule) },
-  { path: '', component: LandingPageComponent},
-];
+const routes: Routes = [{ path: '', component: HomeComponent }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

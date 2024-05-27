@@ -1,68 +1,79 @@
-import { Injectable } from "@angular/core"
-import { User } from "../../auth/models/user.model";
-import { Observable, catchError, map, of, pipe, tap, throwError } from "rxjs";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { Login } from "../../auth/models/login.model";
-import { Router } from "@angular/router";
+import { Injectable } from '@angular/core';
+import { User } from '../../auth/models/user.model';
+import { Observable, catchError, map, of, pipe, tap, throwError } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Login } from '../../auth/models/login.model';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class AuthService {
+  private userToken: string | null | undefined;
 
-    /// token needed to authenticate the backend
-    private tokenName = "X-API-KEY"
-    private token = "Baeldung"
+  private currentUser: User | undefined;
 
-    private userToken : string | null | undefined;
+  setCurrentUser(user: User) {
+    this.currentUser = user;
+  }
 
+  getCurrentUser(): User | undefined {
+    return this.currentUser;
+  }
 
-    getToken() : string {
-        return this.token;
+  getUserToken(): string | undefined | null {
+    if (this.userToken == null || this.userToken == undefined) {
+      this.userToken = localStorage.getItem('currentUser');
     }
+    return this.userToken;
+  }
 
-    getTokenName() : string {
-        return this.tokenName;
+  constructor(private http: HttpClient) {}
+
+  register(user: User): Observable<Map<string, string>> {
+    return this.http
+      .post<Map<string, string>>('https://localhost/register', user)
+      .pipe(
+        catchError((error: HttpErrorResponse) =>
+          of({ ...error.error, status: error.status } as Map<string, string>)
+        ),
+        tap((event) => this.extractToken(event))
+      );
+  }
+
+  login(login: Login): Observable<Map<string, string>> {
+    return this.http
+      .post<Map<string, string>>('https://localhost/auth/login', login)
+      .pipe(
+        catchError((error: HttpErrorResponse) =>
+          of({ ...error.error, status: error.status } as Map<string, string>)
+        ),
+        tap((event) => this.extractToken(event))
+      );
+  }
+
+  logout(): Observable<Map<string, string>> {
+    return this.http
+      .get<Map<string, string>>('https://localhost/auth/logout')
+      .pipe(
+        catchError((error: HttpErrorResponse) =>
+          of({ ...error.error, status: error.status } as Map<string, string>)
+        ),
+      );
+  }
+
+  cleanUserToken(): void {
+    this.userToken = null;
+    localStorage.removeItem('currentUser');
+  }
+
+  extractToken(map: any): void {
+    if (map['access_token'] != null) {
+      this.userToken = map['access_token']
+      localStorage.setItem('currentUser', map['access_token']);
     }
+  }
 
-    getUserToken() : string | undefined | null {
-        if (this.userToken == null || this.userToken == undefined) {
-           this.userToken = localStorage.getItem('currentUser');
-        }
-        return this.userToken;
-    }
-
-    constructor(private http: HttpClient) {}
-
-
-    register(user : User) : Observable<Map<string, string>> {
-        return this.http.post<Map<string, string>>("http://localhost:9000/register", user).pipe(
-            catchError((error : HttpErrorResponse) => of({...error.error, status: error.status} as Map<string, string>))
-        )
-    }
-
-    login(login : Login) : Observable<Map<string, string>> {
-        return this.http.post<Map<string, string>>("http://localhost:9000/login", login).pipe(
-            catchError((error : HttpErrorResponse) => of({...error.error, status: error.status} as Map<string, string>)),
-            tap(this.extractToken)
-        )
-    }
-
-    logout() : Observable<Map<string, string>> {
-        return this.http.get<Map<string, string>>("http://localhost:9000/logout").pipe(
-            catchError((error : HttpErrorResponse) => of({...error.error, status: error.status} as Map<string, string>)),
-        )
-    }
-
-    cleanUserToken() : void {
-        this.userToken = null;
-        localStorage.removeItem('currentUser');
-    }
-
-    extractToken(map: any) : void {
-        if (map['token'] != null) {
-            localStorage.setItem('currentUser', map['token']);
-        }
-    }
+  get isLogged(): boolean {
+    return this.getUserToken() != undefined && this.getUserToken() != null;
+  }
 }

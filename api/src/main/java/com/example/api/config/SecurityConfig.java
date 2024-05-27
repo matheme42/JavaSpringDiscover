@@ -27,10 +27,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import com.example.api.config.CustomHandler.CustomAccessDeniedHandler;
 import com.example.api.config.CustomHandler.CustomLogoutHandler;
-import com.example.api.filter.AuthentificationFilter;
 import com.example.api.filter.JwtAuthentificationFilter;
-
-import lombok.Data;
 
 /**
  * Configuration class for defining security configurations for the application.
@@ -38,7 +35,6 @@ import lombok.Data;
  * @Configuration Indicates that the class is a configuration class, providing bean definitions and other application configuration.
    @EnableWebSecurity Enables Spring Security's web security features in the application.
 */
-@Data
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -48,9 +44,6 @@ public class SecurityConfig {
 
   @Autowired
   JwtAuthentificationFilter jwtFilter;
-
-  @Autowired
-  AuthentificationFilter authFilter;
 
   @Autowired
   CustomAccessDeniedHandler customAccessDeniedHandler;
@@ -84,11 +77,10 @@ public class SecurityConfig {
        * - Requests to "/error" endpoint are permitted without authentication.
        * - All other requests require either "USER" or "ADMIN" authority.
        */
+
       http.authorizeHttpRequests(req -> 
-        req.requestMatchers("/login/**", "/register/**", "/validate_accout/**", "/validate/**", "/forget_password/**", "/reset_password/**").authenticated().
-        requestMatchers("/error", "/employee/**", "employees/**", "snap/**", "snaps/**").permitAll().
+        req.requestMatchers("/login/**", "/register/**", "/validate_accout/**", "/validate/**", "/forget_password/**", "/reset_password/**", "/refresh/**", "/error").permitAll().
         requestMatchers("/**").hasAnyAuthority("USER", "ADMIN")
-        .anyRequest().authenticated()
       );
 
       /**
@@ -113,9 +105,7 @@ public class SecurityConfig {
        * - Adds JwtAuthentificationFilter after UsernamePasswordAuthenticationFilter.
        * - Adds AuthentificationFilter after JwtAuthentificationFilter.
        */
-      http.addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-      http.addFilterAfter(authFilter, JwtAuthentificationFilter.class);
-
+      http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
     /**
      * Configures logout behavior in the HTTP security configuration.
@@ -161,7 +151,7 @@ public class SecurityConfig {
       final CorsConfiguration config = new CorsConfiguration();
       config.setAllowCredentials(true);
       // Don't do this in production, use a proper list  of allowed origins
-      config.addAllowedOrigin("http://localhost:4200");
+      config.addAllowedOriginPattern("*");
       config.addAllowedHeader("*");
       config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));
       source.registerCorsConfiguration("/**", config);

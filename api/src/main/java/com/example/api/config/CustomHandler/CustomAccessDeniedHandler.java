@@ -1,10 +1,8 @@
 package com.example.api.config.CustomHandler;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;

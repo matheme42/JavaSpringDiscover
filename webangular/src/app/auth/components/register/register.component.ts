@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, Subject, Subscriber, map, tap } from 'rxjs';
 import { User, UserRole } from '../../models/user.model';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +21,7 @@ export class RegisterComponent implements OnInit {
 
   user? : User;
   
-  constructor(private formBuilder: FormBuilder, private auth: AuthService, private router: Router) { }
+  constructor(private formBuilder: FormBuilder, private auth: AuthService, private router: Router, private socketService : SocketService) { }
 
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
@@ -50,7 +51,7 @@ export class RegisterComponent implements OnInit {
   parseRegisterMessage(map : any) : void {
     this.errorMessage = map['error'];
     if (map['token']) {
-      this.auth.extractToken(map);
+      this.socketService.connect();
       this.router.navigateByUrl('/')
     }
   }

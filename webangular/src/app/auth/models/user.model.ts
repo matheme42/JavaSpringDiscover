@@ -4,10 +4,24 @@ export enum UserRole {
     REGISTER = "REGISTER"
 }
 
-export class User {
+export interface User {
+    username : string;
+    email? : string;
+    password? : string;
+    image? : string;
+    role? : UserRole;
+    logged?: boolean;
+    last_connection?: Date;
+}
+
+export class PendingRequest {
     username! : string;
-    email! : string;
-    password! : string;
-    image! : string;
-    role! : UserRole;
+    image? : string;
+    role? : UserRole;
+}
+
+export class InvitationRequest {
+    username! : string;
+    image? : string;
+    role? : UserRole;
 }

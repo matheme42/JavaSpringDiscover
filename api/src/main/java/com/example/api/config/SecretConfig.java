@@ -19,13 +19,9 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "secret") // add a prefix element of the declaration
 public class SecretConfig {
 
-    private String AUTHENTICATE_TOKEN_NAME;
-
-    private String AUTHENTICATE_TOKEN;
-
     private String JWT_SECRET_KEY;
-
-
+    private int JWT_ACCESS_TOKEN_EXPIRED;
+    private int JWT_REFRESH_TOKEN_EXPIRED;
 
     /**
      * Represents field in the SecretConfig class that holds the email service configuration property.

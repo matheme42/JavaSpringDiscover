@@ -1,10 +1,42 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { SocketService } from './core/services/socket.service';
+import { Subscription, tap } from 'rxjs';
+import { Router } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
+export class AppComponent implements OnInit, OnDestroy {
+  constructor(
+    private socketService: SocketService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
+  ngOnDestroy(): void
+  {
+    this.socketService.disconnect();
+  }
 
-export class AppComponent {
+  public socketStatus?: boolean;
+
+  ngOnInit(): void {
+    if (!this.authService.isLogged) {
+      this.socketStatus = false;
+      this.router.navigateByUrl('/login');
+      return;
+    }
+
+    this.socketService
+      .onStatusChange()
+      .pipe(tap((data) => this.onReceiveStatus(data)).bind(this))
+      .subscribe();
+    this.socketService.connect();
+  }
+
+  onReceiveStatus(event: any) {
+    this.socketStatus = event;
+  }
 }

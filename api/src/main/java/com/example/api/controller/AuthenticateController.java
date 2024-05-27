@@ -15,6 +15,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.api.DTO.AuthenticateDTO.LoginRequestDTO;
+import com.example.api.DTO.AuthenticateDTO.RefreshRequestDTO;
+import com.example.api.DTO.AuthenticateDTO.RegisterRequestDTO;
 import com.example.api.DTO.AuthenticateDTO.ResetPasswordRequestDTO;
 import com.example.api.DTO.AuthenticateDTO.SendUserCodeDTO;
 import com.example.api.DTO.AuthenticateDTO.TokenRequestDTO;
@@ -131,8 +133,16 @@ public class AuthenticateController extends CustomBadRequestHandler {
      * @return a ResponseEntity containing the response
      */
     @PostMapping("/register")
-    public ResponseEntity<HashMap<String, Object>> register(@RequestBody @Valid User user, BindingResult result) {
+    public ResponseEntity<HashMap<String, Object>> register(@RequestBody @Valid RegisterRequestDTO userRequest, BindingResult result) {
         if (result.hasErrors()) return handleBadRequest(result);
+        
+        User user = new User();
+        user.setEmail(userRequest.getEmail());
+        user.setImage(userRequest.getImage());
+        user.setPassword(userRequest.getPassword());
+        user.setUsername(userRequest.getUsername());
+        user.setRole(userRequest.getRole());
+
         HashMap<String, Object> response = authenticationService.register(user);
         if (!response.containsKey("token")) return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 
@@ -156,7 +166,7 @@ public class AuthenticateController extends CustomBadRequestHandler {
     public ResponseEntity<HashMap<String, Object>> login(@RequestBody @Valid LoginRequestDTO request, BindingResult result) {
         if (result.hasErrors()) return handleBadRequest(result);
         HashMap<String, Object> response = authenticationService.authenticate(request);
-        return new ResponseEntity<>(response, response.containsKey("token") ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, response.containsKey("access_token") ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
 
@@ -230,4 +240,12 @@ public class AuthenticateController extends CustomBadRequestHandler {
         HashMap<String, Object> authResult = authenticationService.readForgetPasswordCode(request.getToken(), request.getPassword());
         return new ResponseEntity<>(authResult, authResult.containsKey("error") ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<HashMap<String, Object>> refresh(@RequestBody @Valid RefreshRequestDTO request, BindingResult result) {
+        if (result.hasErrors()) return handleBadRequest(result);
+        HashMap<String, Object> authResult = authenticationService.refresh(request.getRefresh());
+        return new ResponseEntity<>(authResult, authResult.containsKey("error") ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
+    }
+    
 }

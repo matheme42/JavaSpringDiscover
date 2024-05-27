@@ -1,6 +1,7 @@
 package com.example.api.filter;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import com.example.api.service.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -29,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @Component
 public class JwtAuthentificationFilter extends OncePerRequestFilter {
+    static Logger logger = Logger.getLogger("JWT Authentification Filter");
 
     @Autowired
     private JwtService jwtService;
@@ -50,20 +53,38 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
     // Extract the Authorization header which contains the JWT token
-    String authHeader = request.getHeader("Authorization");
-    // Check if the Authorization header is missing or does not start with "Bearer "
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    String token = null;
+
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().compareTo("Identity") == 0) {
+                token = cookie.getValue();
+                break ;
+            }
+        }
+    } else {
+        String identity = request.getHeader("Authorization");
+        if (identity != null) {
+            token = identity.substring(7);
+        } else {
+            identity = request.getParameter("Authorization");
+            if (identity != null) token = identity;
+        }
+    }
+
+    logger.info("New Authetification: " + token);
+
+    // Check if the Identity Cookies is missing
+    if (token == null) {
         // If missing or invalid, proceed with the next filter in the chain
         filterChain.doFilter(request, response);
         return;
     }
-
-    // Extract the token from the Authorization header
-    String token = authHeader.substring(7);
-
     // Extract the username from the JWT token
     String username = jwtService.extractUsername(token);
-        
+    logger.info("New Authetification for: " + username);
+
         // Check if the username is extracted successfully and if no authentication is already set in the SecurityContextHolder
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
@@ -80,10 +101,16 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
                 // Set the authentication in the SecurityContextHolder
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
+                logger.info("Authetification result: " + isTokenValid + " as: " + userDetails.getAuthorities());
                 // Proceed with the next filter in the chain
                 filterChain.doFilter(request, response);
             } catch (Exception e) {
+                logger.info("Authetification result: false:" + e.toString());
                 // If an exception occurs during authentication, set the HTTP status to UNAUTHORIZED
+                if (SecurityContextHolder.getContext().getAuthentication() != null && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
+                    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    return ;
+                }
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
             }
             return ;

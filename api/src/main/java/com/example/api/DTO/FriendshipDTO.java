@@ -12,7 +12,7 @@ public class FriendshipDTO {
     @NoArgsConstructor
     public static class FriendshipInvitationDTO {
     
-        @NotBlank(message = "username in mandatory")
+        @NotBlank(message = "username is mandatory")
         private String username;
     }
 
@@ -24,7 +24,7 @@ public class FriendshipDTO {
         @NotNull(message = "response is mandatory")
         Boolean response;
 
-        @NotBlank(message = "username in mandatory")
+        @NotBlank(message = "username is mandatory")
         private String username;   
     }
 }

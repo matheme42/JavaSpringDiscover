@@ -1,9 +1,11 @@
 package com.example.api.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.example.api.model.database.User;
@@ -26,4 +28,10 @@ public interface UserRepository extends JpaRepository<User, UUID>{
      * @return an optional containing the user if found, otherwise empty
      */
     Optional<User> findByEmail(String email);
+
+    @Query("""
+            Select u from User u
+            where u.username like %:pattern%
+    """)
+    public List<User> findByUSernamePattern(String pattern);
 }

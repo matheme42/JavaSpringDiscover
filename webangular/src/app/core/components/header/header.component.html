@@ -1,9 +1,0 @@
-<header>
-  <h1>snapface</h1>
-  <nav>
-    <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
-    <a routerLink="facesnaps" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">FaceSnaps</a>
-    <a routerLink="facesnaps/create" routerLinkActive="active">NewFaceSnaps</a>
-    <span *ngIf="isAuthenticate()"><button class="btn btn-primary" type="submit" (click)="logout()">Logout</button></span>
-  </nav>
-</header>
