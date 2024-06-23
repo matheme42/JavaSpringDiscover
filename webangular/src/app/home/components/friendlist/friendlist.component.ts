@@ -28,7 +28,7 @@ export class FriendlistComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private socketService: SocketService,
-    private chatService : ChatService,
+    private chatService: ChatService
   ) {}
 
   ngOnDestroy(): void {
@@ -49,7 +49,6 @@ export class FriendlistComponent implements OnInit, OnDestroy {
   inputFocus: boolean = false;
 
   socketMessageSubscription: Subscription | undefined;
-
 
   openChatFromUser(user: User): void {
     this.chatService.openChatFromUser(user);
@@ -82,19 +81,31 @@ export class FriendlistComponent implements OnInit, OnDestroy {
   onReceiveSocketMessage(data: any) {
     switch (data['message_type']) {
       case SocketMessageType.friendshipConnection: {
-        let user: User |undefined = this.amis.find((e) => e.username === data['username']);
-        if (user == undefined) return ;
+        let user: User | undefined = this.amis.find(
+          (e) => e.username === data['username']
+        );
+        if (user == undefined) return;
         user.logged = true;
         break;
       }
       case SocketMessageType.friendshipDisconnection: {
-        let user: User |undefined = this.amis.find((e) => e.username === data['username']);
-        if (user == undefined) return ;
+        let user: User | undefined = this.amis.find(
+          (e) => e.username === data['username']
+        );
+        if (user == undefined) return;
         user.logged = false;
         break;
       }
       case SocketMessageType.friendshipInvitation: {
         this.invitations.push({
+          username: data['username'],
+          role: data['role'],
+          image: data['image'],
+        });
+        break;
+      }
+      case SocketMessageType.selfFriendshipInvitation: {
+        this.pendingAmis.push({
           username: data['username'],
           role: data['role'],
           image: data['image'],
@@ -139,36 +150,15 @@ export class FriendlistComponent implements OnInit, OnDestroy {
   }
 
   sendFriendShipInvitation(username: string): void {
-    this.friendshipService
-      .sendInvitation(username)
-      .pipe(tap((data) => this.analyseSendInvitationResponse(data, username)))
-      .subscribe();
+    this.friendshipService.sendInvitation(username).subscribe();
   }
 
   replyFriendShip(username: string, response: boolean): void {
-    this.friendshipService
-      .replyInvitation(username, response)
-      .pipe(tap((data) => this.analysereplyFriendShipResponse(data, username)))
-      .subscribe();
+    this.friendshipService.replyInvitation(username, response).subscribe();
   }
 
   removeFriendShip(username: string): void {
-    this.friendshipService
-      .removeFriendShip(username)
-      .pipe(tap((data) => this.analyseRemoveFriendShipResponse(data, username)))
-      .subscribe();
-  }
-
-  analyseSendInvitationResponse(datas: any, username: string): void {
-    if (datas['error']) return;
-    let idx: number = this.searchedUser!.findIndex(
-      (u) => u.username === username
-    );
-    if (idx > -1 && idx < this.searchedUser!.length) {
-      this.pendingAmis.push(
-        this.searchedUser!.splice(idx, 1).pop() as PendingRequest
-      );
-    }
+    this.friendshipService.removeFriendShip(username).subscribe();
   }
 
   onFocus(event: any): void {

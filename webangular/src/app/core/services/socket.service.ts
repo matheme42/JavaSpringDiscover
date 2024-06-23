@@ -24,24 +24,29 @@ export class SocketService {
     this.webSocket = new WebSocket(
       `wss://localhost/ws?Authorization=${this.authService.getUserToken()}`
     );
+
     this.webSocket.onclose = (event: any) => this.privateOnClose(event);
     this.webSocket.onmessage = (event: any) => this.privateOnMessage(event);
     this.webSocket.onerror = (error: any) => this.privateOnError(error);
   }
 
   public disconnect() {
-    this.webSocket?.close();
+    const webSocket: WebSocket | undefined = this.webSocket;
     this.webSocket = undefined;
+    webSocket?.close();
   }
 
   private privateOnClose(event: any) {
-    this.statusSubject$.next(false);
+    if (this.webSocket == undefined) {
+      this.statusSubject$.next(false);
+      return;
+    }
+
+    this.statusSubject$.next(null);
   }
 
   private privateOnError(error: any) {
-    this.authService.cleanUserToken();
-    this.router.navigateByUrl('/login');
-    this.statusSubject$.next(false);
+    this.statusSubject$.next(null);
   }
 
   private privateOnMessage(event: MessageEvent<any>): void {

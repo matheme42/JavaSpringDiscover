@@ -7,14 +7,16 @@ import { HeaderComponent } from './components/header/header.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { ProfilComponent } from './components/profil/profil.component';
 
 @NgModule({
   declarations: [
     HomeComponent,
     FriendlistComponent,
     HeaderComponent,
+    ProfilComponent,
   ],
-  exports: [HomeComponent],
+  exports: [HomeComponent, ProfilComponent],
   imports: [
     CommonModule,
     FormsModule,

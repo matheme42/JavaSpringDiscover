@@ -20,6 +20,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -33,7 +34,9 @@ import lombok.Data;
  * Represents a user entity in the database.
  */
 @Data
-@Table(name = "user")
+@Table(name = "user", indexes = {
+    @Index(name = "idx_username", columnList = "username")
+})
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "tokens", "refreshTokens", "friendships", "authorities", "messages" })
 public class User implements UserDetails {

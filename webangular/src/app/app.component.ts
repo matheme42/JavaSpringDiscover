@@ -15,8 +15,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService
   ) {}
-  ngOnDestroy(): void
-  {
+  ngOnDestroy(): void {
     this.socketService.disconnect();
   }
 
@@ -37,6 +36,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onReceiveStatus(event: any) {
-    this.socketStatus = event;
+    if (event === null) {
+      this.socketStatus = undefined;
+      setTimeout(() => {
+        this.socketService.connect();
+      }, 3000);
+    } else {
+      this.socketStatus = event;
+    }
   }
 }

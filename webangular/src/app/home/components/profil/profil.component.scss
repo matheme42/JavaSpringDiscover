@@ -1,0 +1,37 @@
+.form-card {
+    box-sizing: border-box;
+    width: 70%;
+    margin: 20px auto;
+    padding: 10px 30px;
+    background-color: whitesmoke;
+    box-shadow: lightgray 4px 4px 20px;
+  }
+  
+  .form-group {
+    margin: 10px auto;
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  input, textarea {
+    width: 50%;
+  }
+  
+  .action-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+  
+  button {
+    display: block;
+    margin: 20px auto;
+  }
+
+  .form-error{
+    color: red;
+  }
+  

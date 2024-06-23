@@ -14,11 +14,11 @@ export class HeaderComponent implements OnInit {
   menu: any = [
     {
       label: 'Bomberman',
-      action: () => this.logout(),
+      action: () => this.home(),
     },
     {
       label: 'Profils',
-      action: () => this.logout(),
+      action: () => this.profil(),
     },
     {
       label: 'Nouvelle partie',
@@ -34,10 +34,18 @@ export class HeaderComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private chatService: ChatService,
-    private socketService : SocketService
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {}
+
+  profil(): void {
+    this.router.navigateByUrl('/profil');
+  }
+
+  home(): void {
+    this.router.navigateByUrl('/');
+  }
 
   logout(): void {
     this.authService

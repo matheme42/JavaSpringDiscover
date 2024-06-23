@@ -78,7 +78,7 @@ public class FriendshipController extends CustomBadRequestHandler {
                 if (friendship.getIs_accepted() != null && friendship.getIs_accepted() == true) {
                     friends.add(Map.of(
                             "username", friend.getUsername(),
-                            "image", friend.getImage(),
+                            "image", String.format("%s", friend.getImage()),
                             "role", friend.getRole(),
                             "logged", friend.getLogged(),
                             "last_connection", String.format("%s", friend.getLastConnection())));
@@ -88,13 +88,13 @@ public class FriendshipController extends CustomBadRequestHandler {
                 if (isRemainUser) {
                     pendingInvitation.add(Map.of(
                             "username", friend.getUsername(),
-                            "image", friend.getImage(),
+                            "image", String.format("%s", friend.getImage()),
                             "role", friend.getRole()));
                     continue;
                 }
                 invitation.add(Map.of(
                         "username", friend.getUsername(),
-                        "image", friend.getImage(),
+                        "image", String.format("%s", friend.getImage()),
                         "role", friend.getRole()));
             }
 
@@ -138,6 +138,9 @@ public class FriendshipController extends CustomBadRequestHandler {
             }
             Friendship friendship = searchFriendship.get();
             socketService.sendUserAsJsonMessageOnSession(SocketMessageType.friendshipRemove, user, username);
+            socketService.sendUserAsJsonMessageOnSession(SocketMessageType.friendshipRemove, claimantUser,
+                    user.getUsername());
+
             friendshipService.deleteFriendship(friendship.getId());
         } catch (Exception e) {
             System.err.println(e.toString());
@@ -196,8 +199,12 @@ public class FriendshipController extends CustomBadRequestHandler {
         friendship.setUser(user);
         friendship.setIs_accepted(null);
 
+        socketService.sendUserAsJsonMessageOnSession(SocketMessageType.selfFriendshipInvitation, friend,
+                user.getUsername());
+
         if (friend.getLogged() != null && friend.getLogged() == true) {
-            socketService.sendUserAsJsonMessageOnSession(SocketMessageType.friendshipInvitation, user, friend.getUsername());
+            socketService.sendUserAsJsonMessageOnSession(SocketMessageType.friendshipInvitation, user,
+                    friend.getUsername());
         }
 
         friendshipService.saveFriendship(friendship);
@@ -241,6 +248,8 @@ public class FriendshipController extends CustomBadRequestHandler {
         if (request.getResponse() == null || request.getResponse() == false) {
             socketService.sendUserAsJsonMessageOnSession(SocketMessageType.friendshipRemove, user,
                     claimantUser.getUsername());
+            socketService.sendUserAsJsonMessageOnSession(SocketMessageType.friendshipRemove, claimantUser,
+                    user.getUsername());
             return ResponseEntity.ok(new HashMap<>() {
                 {
                     put("message", "ok");
@@ -250,9 +259,13 @@ public class FriendshipController extends CustomBadRequestHandler {
         }
         if (claimantUser.getLogged() != null && claimantUser.getLogged() == true) {
             String username = claimantUser.getUsername();
-            socketService.sendFullInformationUserAsJsonMessageOnSession(SocketMessageType.friendshipInvitationReply, user,
+            socketService.sendFullInformationUserAsJsonMessageOnSession(SocketMessageType.friendshipInvitationReply,
+                    user,
                     username);
         }
+        socketService.sendFullInformationUserAsJsonMessageOnSession(SocketMessageType.friendshipInvitationReply,
+                claimantUser,
+                user.getUsername());
 
         HashMap<String, Object> response = new HashMap<>();
         response.put("username", claimantUser.getUsername());

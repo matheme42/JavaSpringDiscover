@@ -31,7 +31,7 @@ export class AuthService {
 
   register(user: User): Observable<Map<string, string>> {
     return this.http
-      .post<Map<string, string>>('https://localhost/register', user)
+      .post<Map<string, string>>('https://localhost/auth/register', user)
       .pipe(
         catchError((error: HttpErrorResponse) =>
           of({ ...error.error, status: error.status } as Map<string, string>)

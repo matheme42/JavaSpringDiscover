@@ -81,7 +81,7 @@ public class SocketService {
                 "username", user.getUsername(),
                 "email", user.getEmail(),
                 "role", user.getRole(),
-                "image", user.getImage(),
+                "image", String.format("%s", user.getImage()),
                 "logged", user.getLogged(),
                 "last_connection", String.format("%s", user.getLastConnection())), username);
     }
@@ -91,7 +91,7 @@ public class SocketService {
                 "username", user.getUsername(),
                 "email", user.getEmail(),
                 "role", user.getRole(),
-                "image", user.getImage()), username);
+                "image", String.format("%s", user.getImage())), username);
     }
 
     public void sendConnectionReplyAsJsonMessageOnSession(String messageType, User user, String username) {
@@ -99,6 +99,6 @@ public class SocketService {
                 "username", user.getUsername(),
                 "email", user.getEmail(),
                 "role", user.getRole(),
-                "image", user.getImage()), username);
+                "image", String.format("%s", user.getImage())), username);
     }
 }

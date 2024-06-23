@@ -1,5 +1,6 @@
 package com.example.api.service;
 
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -15,6 +16,7 @@ import com.example.api.repository.TokenRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -63,13 +65,21 @@ public class JwtService {
     }
 
     private String generateToken(User user, int expirationInMilli) {
-        return Jwts
-                .builder()
-                .subject(user.getUsername().toString())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expirationInMilli))
-                .signWith(getSigningKey())
-                .compact();
+        JwtBuilder builder = Jwts
+        .builder()
+        .subject(user.getUsername().toString())
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + expirationInMilli));
+       
+
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance("NativePRNG");
+            secureRandom.setSeed(532413);
+            builder.random(secureRandom);
+        } catch (Exception e) {
+        }
+        return builder.signWith(getSigningKey())
+        .compact();
     }
 
     private SecretKey getSigningKey() {

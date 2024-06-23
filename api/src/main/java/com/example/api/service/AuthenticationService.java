@@ -154,6 +154,12 @@ public class AuthenticationService {
      */
     public String generateAccessToken(User user) {
         String jwt = jwtService.generateAccessToken(user);
+
+        // protect against potential duplicate token
+        while (tokenRepository.findByToken(jwt).isPresent()) {
+            jwt = jwtService.generateAccessToken(user);
+        }
+
         // save the generated token
         saveUserToken(jwt, user);
         return jwt;
